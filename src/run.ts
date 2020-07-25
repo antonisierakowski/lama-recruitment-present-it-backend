@@ -1,7 +1,7 @@
 import './config/dotenv';
 import 'reflect-metadata';
 import { InversifyExpressServer } from 'inversify-express-utils';
-import { applyMiddleware } from './middleware';
+import { applyMiddleware } from './config/expressMddleware';
 import container from './config/container';
 
 const port = process.env.REST_API_PORT || 8000;
