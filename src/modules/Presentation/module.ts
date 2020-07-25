@@ -5,6 +5,7 @@ import { PresentationService } from './PresentationService';
 import { PresentationFileServiceInterface } from './PresentationFileServiceInterface';
 import { PdfService } from './PdfService';
 import { PptxService } from './PptxService';
+import xml2js from 'xml2js';
 
 export const presentationModuleLoader = (container: Container): void => {
   container
@@ -22,4 +23,7 @@ export const presentationModuleLoader = (container: Container): void => {
     )
     .to(PptxService)
     .whenTargetNamed('PptxService');
+  container
+    .bind<xml2js.Parser>(presentationModule.XmlParser)
+    .toConstantValue(new xml2js.Parser());
 };

@@ -53,11 +53,7 @@ export class PresentationService implements PresentationServiceInterface {
         );
         break;
       }
-      default: {
-        return null;
-      }
     }
-    // pdf service or pptx service will analyze it and get noOfPages
 
     // file service saves the file in static folder and gets the url
 
