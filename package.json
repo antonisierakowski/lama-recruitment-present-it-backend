@@ -7,11 +7,11 @@
   "repository": "https://github.com/antonisierakowski/lama-recruitment-present-it-backend",
   "scripts": {
     "start": "node ./dist/run.js",
-    "dev": "nodemon --watch '*.ts' --exec 'yarn check-code && ts-node' src/run.ts",
-    "build": "yarn check-code && tsc",
+    "dev": "nodemon --watch '*.ts' --exec 'yarn lint && ts-node' src/run.ts",
+    "build": "yarn lint && tsc",
     "lint": "eslint \"./src/**/*.ts\"",
     "lint-fix": "eslint \"./src/**/*.ts\" --fix",
-    "format": "yarn prettier --write '*/**/*.{ts,tsx}'"
+    "format": "prettier --write '*/**/*.ts'"
   },
   "dependencies": {
     "@types/express": "^4.17.7",
@@ -28,6 +28,7 @@
     "lint-staged": "^10.2.11",
     "nodemon": "^2.0.4",
     "pg": "^8.3.0",
+    "prettier": "^2.0.5",
     "reflect-metadata": "^0.1.13",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.7"
@@ -38,9 +39,9 @@
     }
   },
   "lint-staged": {
-    "*.{ts}": [
-      "yarn lint-fix",
-      "yarn format"
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
     ]
   }
 }
