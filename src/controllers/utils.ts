@@ -1,21 +1,7 @@
 import { Response } from 'express';
 import { HttpException } from '../exceptions';
-
-export enum StatusCode {
-  OK = 200,
-  BAD_REQUEST = 400,
-  RESOURCE_NOT_FOUND = 404,
-  UNPROCESSABLE_ENTITY = 422,
-  INTERNAL_ERROR = 500,
-}
-
-export const defaultErrorMsg = {
-  [StatusCode.OK]: 'Ok',
-  [StatusCode.BAD_REQUEST]: 'Bad request',
-  [StatusCode.RESOURCE_NOT_FOUND]: 'Resource not found',
-  [StatusCode.UNPROCESSABLE_ENTITY]: 'Unprocessable entity',
-  [StatusCode.INTERNAL_ERROR]: 'Internal error',
-};
+import { StatusCode } from '../StatusCode';
+import { defaultErrorMsg } from '../exceptions/defaultErrorMsg';
 
 interface MessageResponse {
   message: string;
