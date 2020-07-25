@@ -9,6 +9,7 @@ import {
 import { inject, injectable, named } from 'inversify';
 import * as path from 'path';
 import { presentationModule } from './serviceIdentifiers';
+import { PresentationFileServiceInterface } from './PresentationFileServiceInterface';
 
 export enum FileExtension {
   PPTX = '.pptx',
@@ -20,10 +21,10 @@ export class PresentationService implements PresentationServiceInterface {
   constructor(
     @inject(presentationModule.PresentationFileService)
     @named('PptxService')
-    private pptxService: PresentationServiceInterface,
+    private pptxService: PresentationFileServiceInterface,
     @inject(presentationModule.PresentationFileService)
     @named('PdfService')
-    private pdfService: PresentationServiceInterface,
+    private pdfService: PresentationFileServiceInterface,
   ) {}
 
   async uploadPresentation(files: UploadedPresentation): Promise<void> {
@@ -38,6 +39,24 @@ export class PresentationService implements PresentationServiceInterface {
       throw new UnsupportedMediaTypeException();
     }
 
+    let numberOfPages: number;
+    switch (fileExtension) {
+      case FileExtension.PDF: {
+        numberOfPages = await this.pdfService.getNumberOfPages(
+          presentation.data,
+        );
+        break;
+      }
+      case FileExtension.PPTX: {
+        numberOfPages = await this.pptxService.getNumberOfPages(
+          presentation.data,
+        );
+        break;
+      }
+      default: {
+        return null;
+      }
+    }
     // pdf service or pptx service will analyze it and get noOfPages
 
     // file service saves the file in static folder and gets the url
