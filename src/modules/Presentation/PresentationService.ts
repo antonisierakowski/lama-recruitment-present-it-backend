@@ -6,8 +6,9 @@ import {
   BadRequestException,
   UnsupportedMediaTypeException,
 } from '../../exceptions';
-import { injectable } from 'inversify';
+import { inject, injectable, named } from 'inversify';
 import * as path from 'path';
+import { presentationModule } from './serviceIdentifiers';
 
 export enum FileExtension {
   PPTX = '.pptx',
@@ -16,6 +17,15 @@ export enum FileExtension {
 
 @injectable()
 export class PresentationService implements PresentationServiceInterface {
+  constructor(
+    @inject(presentationModule.PresentationFileService)
+    @named('PptxService')
+    private pptxService: PresentationServiceInterface,
+    @inject(presentationModule.PresentationFileService)
+    @named('PdfService')
+    private pdfService: PresentationServiceInterface,
+  ) {}
+
   async uploadPresentation(files: UploadedPresentation): Promise<void> {
     if (!files || !files.presentation) {
       throw new BadRequestException();
