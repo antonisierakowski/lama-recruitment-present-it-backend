@@ -8,7 +8,6 @@ import { websocketServerModule } from './serviceIdentifiers';
 
 @injectable()
 export class WebsocketServer implements WebsocketServerInterface {
-  // todo implement interface
   private wsServer: Server;
   private server: http.Server;
 
