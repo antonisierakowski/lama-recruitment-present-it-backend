@@ -1,7 +1,4 @@
-import {
-  PresentationServiceInterface,
-  UploadedPresentation,
-} from './PresentationServiceInterface';
+import { PresentationServiceInterface } from './PresentationServiceInterface';
 import {
   BadRequestException,
   UnsupportedMediaTypeException,
@@ -12,11 +9,7 @@ import { presentationModule } from './serviceIdentifiers';
 import { PresentationFileServiceInterface } from './PresentationFileServiceInterface';
 import { fileStorageModule } from '../FileStorage/serviceIdentifiers';
 import { FileStorageServiceInterface } from '../FileStorage/FileStorageServiceInterface';
-
-export enum FileExtension {
-  PPTX = '.pptx',
-  PDF = '.pdf',
-}
+import { PresentationFileExtension, UploadedPresentation } from './types';
 
 @injectable()
 export class PresentationService implements PresentationServiceInterface {
@@ -43,20 +36,22 @@ export class PresentationService implements PresentationServiceInterface {
       },
     } = files;
 
-    const fileExtension = path.extname(presentationFileName) as FileExtension;
-    if (!Object.values(FileExtension).includes(fileExtension)) {
+    const fileExtension = path.extname(
+      presentationFileName,
+    ) as PresentationFileExtension;
+    if (!Object.values(PresentationFileExtension).includes(fileExtension)) {
       throw new UnsupportedMediaTypeException();
     }
 
     let numberOfPages: number;
     switch (fileExtension) {
-      case FileExtension.PDF: {
+      case PresentationFileExtension.PDF: {
         numberOfPages = await this.pdfService.getNumberOfPages(
           presentationDataBuffer,
         );
         break;
       }
-      case FileExtension.PPTX: {
+      case PresentationFileExtension.PPTX: {
         numberOfPages = await this.pptxService.getNumberOfPages(
           presentationDataBuffer,
         );

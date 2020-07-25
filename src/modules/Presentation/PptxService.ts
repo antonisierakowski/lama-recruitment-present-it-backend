@@ -3,14 +3,9 @@ import { inject, injectable } from 'inversify';
 import xml2js from 'xml2js';
 import AdmZip from 'adm-zip';
 import { presentationModule } from './serviceIdentifiers';
+import { ParsedPresentationXmlFile } from './types';
 
 const mainXmlFileName = 'docProps/app.xml';
-
-interface ParsedPresentationXmlFile {
-  Properties: {
-    Slides: string[];
-  };
-}
 
 @injectable()
 export class PptxService implements PresentationFileServiceInterface {
