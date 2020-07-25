@@ -8,13 +8,13 @@ import {
 } from 'inversify-express-utils';
 import { Request, Response } from 'express';
 import { inject } from 'inversify';
-import { presentationModule } from '../modules/Presentation/serviceIdentifiers';
+import { presentationModule } from '../Presentation/serviceIdentifiers';
 import {
   PresentationServiceInterface,
   UploadedPresentation,
-} from '../modules/Presentation/PresentationServiceInterface';
+} from '../Presentation/PresentationServiceInterface';
 import { handleError, sendResponse } from './utils';
-import { StatusCode } from '../StatusCode';
+import { StatusCode } from '../../StatusCode';
 
 @controller('/presentation')
 export class PresentationController implements interfaces.Controller {

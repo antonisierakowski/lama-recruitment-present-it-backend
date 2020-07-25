@@ -13,7 +13,7 @@ const websocketServerPort = process.env.WEBSOCKET_PORT || 8080;
   const server = new InversifyExpressServer(container);
   server.setConfig(applyMiddleware);
   const restApi = server.build();
-  const restApiInstance = await restApi.listen(restServerPort);
+  const restApiInstance = restApi.listen(restServerPort);
   console.log(`REST server started listening on port ${restServerPort}...`);
 
   const wsServer = container.get<WebsocketServerInterface>(
