@@ -28,7 +28,7 @@ export class WebsocketServer implements WebsocketServerInterface {
       });
     });
     this.server.listen(port, () => {
-      console.log(`WS server opened on port ${port}...`);
+      console.log(`WebSocket server opened on port ${port}...`);
     });
   }
 

@@ -14,7 +14,7 @@ const websocketServerPort = process.env.WEBSOCKET_PORT || 8080;
   server.setConfig(applyMiddleware);
   const restApi = server.build();
   const restApiInstance = await restApi.listen(restServerPort);
-  console.log(`Rest server started listening on port ${restServerPort}...`);
+  console.log(`REST server started listening on port ${restServerPort}...`);
 
   const wsServer = container.get<WebsocketServerInterface>(
     websocketServerModule.WebsocketServer,
@@ -22,12 +22,12 @@ const websocketServerPort = process.env.WEBSOCKET_PORT || 8080;
   await wsServer.open(websocketServerPort as number);
 
   process.on('SIGINT', async () => {
-    console.log('received SIGINT');
+    console.log('\nReceived SIGINT, initialising grateful shutdown...');
     restApiInstance.close(() => {
-      console.log('rest server closed succesfuly');
+      console.log('Rest server closed succesfuly.');
     });
     await wsServer.close();
-    console.log('websocket server closed succesfuly');
+    console.log('Websocket server closed succesfuly.');
     process.exit();
   });
 })();
