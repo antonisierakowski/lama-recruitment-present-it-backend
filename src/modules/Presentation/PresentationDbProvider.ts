@@ -4,13 +4,7 @@ import { injectable } from 'inversify';
 import { Presentation, PresentationDbRow } from './types';
 import { Table } from '../db/types';
 import { first } from 'lodash';
-
-const mapPresentationKeys = (presentation: Presentation) => ({
-  number_of_slides: presentation.numberOfSlides,
-  current_slide: presentation.currentSlide,
-  file_name: presentation.fileName,
-  file_type: presentation.fileType,
-});
+import { mapPresentationToDbEntity } from './utils';
 
 @injectable()
 export class PresentationDbProvider extends AbstractDbProvider
@@ -23,7 +17,7 @@ export class PresentationDbProvider extends AbstractDbProvider
     try {
       const result = await query
         .table<PresentationDbRow>(Table.Presentation)
-        .insert(mapPresentationKeys(presentation))
+        .insert(mapPresentationToDbEntity(presentation))
         .returning('*');
       return first(result);
     } catch (error) {
@@ -54,7 +48,7 @@ export class PresentationDbProvider extends AbstractDbProvider
       await query
         .table<PresentationDbRow>(Table.Presentation)
         .where({ id: presentation.id })
-        .update(mapPresentationKeys(presentation as Presentation));
+        .update(mapPresentationToDbEntity(presentation as Presentation));
     } catch (error) {
       this.handleDbError(error);
     }
