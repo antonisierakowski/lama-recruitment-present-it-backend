@@ -11,7 +11,7 @@ import { inject } from 'inversify';
 import { presentationModule } from '../Presentation/serviceIdentifiers';
 import { PresentationServiceInterface } from '../Presentation/PresentationServiceInterface';
 import { handleError, sendResponse } from './utils';
-import { StatusCode } from '../../StatusCode';
+import { StatusCode } from './StatusCode';
 import { PresentationDbRow, UploadedPresentation } from '../Presentation/types';
 
 @controller('/presentation')

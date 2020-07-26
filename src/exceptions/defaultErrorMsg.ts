@@ -1,4 +1,4 @@
-import { StatusCode } from '../StatusCode';
+import { StatusCode } from '../modules/controllers/StatusCode';
 
 export const defaultErrorMsg = {
   [StatusCode.OK]: 'Ok',

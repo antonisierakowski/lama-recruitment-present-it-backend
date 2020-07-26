@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { HttpException } from '../../exceptions';
-import { StatusCode } from '../../StatusCode';
+import { StatusCode } from './StatusCode';
 import { defaultErrorMsg } from '../../exceptions/defaultErrorMsg';
 
 interface MessageResponse {

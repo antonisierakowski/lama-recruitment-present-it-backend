@@ -1,5 +1,5 @@
 import { defaultErrorMsg } from './defaultErrorMsg';
-import { StatusCode } from '../StatusCode';
+import { StatusCode } from '../modules/controllers/StatusCode';
 
 export class HttpException extends Error {
   constructor(public statusCode: StatusCode, message?: string) {
