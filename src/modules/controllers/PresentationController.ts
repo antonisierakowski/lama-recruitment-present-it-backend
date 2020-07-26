@@ -11,7 +11,7 @@ import { inject } from 'inversify';
 import { presentationModule } from '../Presentation/serviceIdentifiers';
 import { PresentationServiceInterface } from '../Presentation/PresentationServiceInterface';
 import {
-  getMimeMapping,
+  mapMimeHeader,
   handleError,
   PRESENTATION_OWNER_COOKIE_VAL,
   sendResponse,
@@ -49,7 +49,10 @@ export class PresentationController implements interfaces.Controller {
       } = await this.presentationService.getPresentation(
         req.params.presentationId,
       );
-      res.writeHead(StatusCode.OK, getMimeMapping(fileType));
+      res.writeHead(StatusCode.OK, {
+        'Cache-Control': 'public, max-age=86400000',
+        ...mapMimeHeader(fileType),
+      });
       res.end(presentationFile);
     } catch (error) {
       handleError(res, error);

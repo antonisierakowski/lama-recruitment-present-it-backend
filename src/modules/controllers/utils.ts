@@ -56,7 +56,7 @@ export const handleError = (res: Response, error: Error): void => {
   }
 };
 
-export const getMimeMapping = (fileType: PresentationFileExtension) => {
+export const mapMimeHeader = (fileType: PresentationFileExtension) => {
   switch (fileType) {
     case PresentationFileExtension.PPTX: {
       return {
