@@ -13,7 +13,7 @@ export class PptxService implements PresentationFileServiceInterface {
     @inject(presentationModule.XmlParser) private parser: xml2js.Parser,
   ) {}
 
-  async getNumberOfPages(file: Buffer): Promise<number> {
+  async getNumberOfSlides(file: Buffer): Promise<number> {
     const mainXmlFileBuffer = this.getMainXmlEntry(file);
     const presentationData = await this.parseXmlPresentationData(
       mainXmlFileBuffer,

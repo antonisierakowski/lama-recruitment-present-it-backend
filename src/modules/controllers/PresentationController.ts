@@ -9,12 +9,10 @@ import {
 import { Request, Response } from 'express';
 import { inject } from 'inversify';
 import { presentationModule } from '../Presentation/serviceIdentifiers';
-import {
-  PresentationServiceInterface,
-  UploadedPresentation,
-} from '../Presentation/PresentationServiceInterface';
+import { PresentationServiceInterface } from '../Presentation/PresentationServiceInterface';
 import { handleError, sendResponse } from './utils';
 import { StatusCode } from '../../StatusCode';
+import { UploadedPresentation } from '../Presentation/types';
 
 @controller('/presentation')
 export class PresentationController implements interfaces.Controller {

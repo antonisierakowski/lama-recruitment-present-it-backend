@@ -16,7 +16,7 @@ export class FileStorageService implements FileStorageServiceInterface {
       await utils.mkDir(this.path);
     }
     await utils.writeFile(fullPath, file);
-    return fullPath;
+    return fileNamePrefixed;
   }
 
   async getFile(fileName: string): Promise<Buffer> {

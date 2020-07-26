@@ -43,6 +43,7 @@ export const sendResponse = <TResponse = any>(
 };
 
 export const handleError = (res: Response, error: Error): void => {
+  console.log(error);
   if (error instanceof HttpException) {
     sendResponse(res, error.statusCode, error.message);
   } else {

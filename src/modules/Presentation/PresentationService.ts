@@ -9,7 +9,12 @@ import { presentationModule } from './serviceIdentifiers';
 import { PresentationFileServiceInterface } from './PresentationFileServiceInterface';
 import { fileStorageModule } from '../FileStorage/serviceIdentifiers';
 import { FileStorageServiceInterface } from '../FileStorage/FileStorageServiceInterface';
-import { PresentationFileExtension, UploadedPresentation } from './types';
+import {
+  PresentationDbRow,
+  PresentationFileExtension,
+  UploadedPresentation,
+} from './types';
+import { PresentationDbProviderInterface } from './PresentationDbProviderInterface';
 
 @injectable()
 export class PresentationService implements PresentationServiceInterface {
@@ -22,9 +27,13 @@ export class PresentationService implements PresentationServiceInterface {
     private pdfService: PresentationFileServiceInterface,
     @inject(fileStorageModule.FileStorageService)
     private fileStorageService: FileStorageServiceInterface,
+    @inject(presentationModule.PresentationDbProvider)
+    private presentationProvider: PresentationDbProviderInterface,
   ) {}
 
-  async uploadPresentation(files: UploadedPresentation): Promise<void> {
+  async uploadPresentation(
+    files: UploadedPresentation,
+  ): Promise<PresentationDbRow> {
     if (!files || !files.presentation) {
       throw new BadRequestException();
     }
@@ -43,16 +52,16 @@ export class PresentationService implements PresentationServiceInterface {
       throw new UnsupportedMediaTypeException();
     }
 
-    let numberOfPages: number;
+    let numberOfSlides: number;
     switch (fileExtension) {
       case PresentationFileExtension.PDF: {
-        numberOfPages = await this.pdfService.getNumberOfPages(
+        numberOfSlides = await this.pdfService.getNumberOfSlides(
           presentationDataBuffer,
         );
         break;
       }
       case PresentationFileExtension.PPTX: {
-        numberOfPages = await this.pptxService.getNumberOfPages(
+        numberOfSlides = await this.pptxService.getNumberOfSlides(
           presentationDataBuffer,
         );
         break;
@@ -64,6 +73,11 @@ export class PresentationService implements PresentationServiceInterface {
       presentationFileName,
     );
 
+    return this.presentationProvider.insertPresentationEntity({
+      fileName,
+      numberOfSlides,
+      currentSlide: 1,
+    });
     // finally, the db provider will save the url, noOfPages, current=1, and id, then return the entity to the user
   }
 }
