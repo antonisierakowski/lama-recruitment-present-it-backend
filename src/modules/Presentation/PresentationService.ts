@@ -22,7 +22,7 @@ import {
 } from './types';
 import { PresentationDbProviderInterface } from './PresentationDbProviderInterface';
 import { PRESENTATION_OWNER_COOKIE_VAL } from '../controllers/utils';
-import { isEmpty } from 'lodash';
+import { isEmpty, isArray } from 'lodash';
 
 @injectable()
 export class PresentationService implements PresentationServiceInterface {
@@ -42,7 +42,7 @@ export class PresentationService implements PresentationServiceInterface {
   async uploadPresentation(
     files: UploadedPresentation,
   ): Promise<UploadPresentationResponse> {
-    if (!files || !files.presentation) {
+    if (!files || !files.presentation || isArray(files.presentation)) {
       throw new BadRequestException();
     }
 
