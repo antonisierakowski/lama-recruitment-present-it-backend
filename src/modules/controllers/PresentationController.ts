@@ -5,6 +5,7 @@ import {
   httpPost,
   httpPut,
   interfaces,
+  requestBody,
 } from 'inversify-express-utils';
 import { Request, Response } from 'express';
 import { inject } from 'inversify';
@@ -38,6 +39,10 @@ export class PresentationController implements interfaces.Controller {
   @httpGet('/:presentationId')
   async getPresentation(req: Request, res: Response): Promise<void> {
     try {
+      const file = await this.presentationService.getPresentation(
+        req.params.presentationId,
+      );
+
       sendResponse(res, StatusCode.OK);
     } catch (error) {
       handleError(res, error);
@@ -66,6 +71,6 @@ export class PresentationController implements interfaces.Controller {
     res: Response,
     presentation: PresentationDbRow,
   ) {
-    res.cookie('PRES_OWNER', presentation.id);
+    res.cookie(presentation.id, 'PRES_OWNER');
   }
 }

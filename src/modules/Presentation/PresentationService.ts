@@ -80,4 +80,8 @@ export class PresentationService implements PresentationServiceInterface {
       fileType: fileExtension,
     });
   }
+
+  async getPresentation(presentationId: string): Promise<Buffer> {
+    return null;
+  }
 }

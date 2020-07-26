@@ -12,7 +12,9 @@ const restServerPort = process.env.REST_API_PORT || 8000;
 const websocketServerPort = process.env.WEBSOCKET_PORT || 8080;
 
 (async () => {
-  const server = new InversifyExpressServer(container);
+  const server = new InversifyExpressServer(container, null, {
+    rootPath: '/api',
+  });
   server.setConfig(applyMiddleware);
   const restApi = server.build();
   const restApiInstance = restApi.listen(restServerPort);

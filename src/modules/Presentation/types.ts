@@ -30,3 +30,7 @@ export interface Presentation {
   fileName: string;
   fileType: PresentationFileExtension;
 }
+
+export interface PresentationWithMetadata extends Partial<Presentation> {
+  isOwner: boolean;
+}
