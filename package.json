@@ -13,7 +13,7 @@
     "fix-lintig": "eslint \"./src/**/*.ts\" --fix",
     "format": "prettier --write '*/**/*.ts'",
     "clear-static": "rm ./__static/*",
-    "init-db": "./db/create_db.sh"
+    "init-db": "./db/initialise_db.sh"
   },
   "dependencies": {
     "@types/adm-zip": "^0.4.33",

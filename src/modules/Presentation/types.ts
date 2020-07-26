@@ -21,3 +21,10 @@ export interface ParsedPresentationXmlFile {
     Slides: string[];
   };
 }
+
+export interface Presentation {
+  id?: string;
+  numberOfSlides: number;
+  currentSlide: number;
+  fileName: string;
+}
