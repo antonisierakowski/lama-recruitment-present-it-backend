@@ -5,6 +5,8 @@ import { applyMiddleware } from './config/expressMddleware';
 import container from './config/container';
 import { websocketServerModule } from './modules/WebsocketServer/serviceIdentifiers';
 import { WebsocketServerInterface } from './modules/WebsocketServer/WebsocketServerInterface';
+import { TriggerListenerInterface } from './modules/db/TriggerListenerInterface';
+import { dbModule } from './modules/db/serviceIdentifiers';
 
 const restServerPort = process.env.REST_API_PORT || 8000;
 const websocketServerPort = process.env.WEBSOCKET_PORT || 8080;
@@ -21,7 +23,13 @@ const websocketServerPort = process.env.WEBSOCKET_PORT || 8080;
   );
   await wsServer.open(websocketServerPort as number);
 
+  const dbTriggerListener = container.get<TriggerListenerInterface>(
+    dbModule.TriggerListener,
+  );
+  await dbTriggerListener.connectAndStartListening();
+
   process.on('SIGINT', async () => {
+    dbTriggerListener.closeConnection();
     console.log('\nReceived SIGINT, initialising grateful shutdown...');
     restApiInstance.close(() => {
       console.log('Rest server closed succesfuly.');
