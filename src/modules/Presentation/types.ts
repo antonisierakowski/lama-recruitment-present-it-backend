@@ -29,4 +29,5 @@ export interface Presentation {
   currentSlide: number;
   fileName: string;
   fileType: PresentationFileExtension;
+  isOwner?: boolean;
 }

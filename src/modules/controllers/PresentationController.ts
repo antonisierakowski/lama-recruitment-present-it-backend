@@ -12,7 +12,7 @@ import { presentationModule } from '../Presentation/serviceIdentifiers';
 import { PresentationServiceInterface } from '../Presentation/PresentationServiceInterface';
 import { handleError, sendResponse } from './utils';
 import { StatusCode } from '../../StatusCode';
-import { UploadedPresentation } from '../Presentation/types';
+import { PresentationDbRow, UploadedPresentation } from '../Presentation/types';
 
 @controller('/presentation')
 export class PresentationController implements interfaces.Controller {
@@ -28,7 +28,8 @@ export class PresentationController implements interfaces.Controller {
       const result = await this.presentationService.uploadPresentation(
         files as UploadedPresentation,
       );
-      sendResponse(res, StatusCode.OK, result);
+      this.setPresentationOwnerCookie(res, result);
+      sendResponse(res, StatusCode.OK, { presentation: result });
     } catch (error) {
       handleError(res, error);
     }
@@ -59,5 +60,12 @@ export class PresentationController implements interfaces.Controller {
     } catch (error) {
       handleError(res, error);
     }
+  }
+
+  private setPresentationOwnerCookie(
+    res: Response,
+    presentation: PresentationDbRow,
+  ) {
+    res.cookie('PRES_OWNER', presentation.id);
   }
 }
