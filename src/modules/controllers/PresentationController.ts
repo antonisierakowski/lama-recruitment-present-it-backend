@@ -49,6 +49,15 @@ export class PresentationController implements interfaces.Controller {
     }
   }
 
+  @httpGet('/:presentationId/metadata')
+  async getPresentationMetadata(req: Request, res: Response): Promise<void> {
+    try {
+      sendResponse(res, StatusCode.OK);
+    } catch (error) {
+      handleError(res, error);
+    }
+  }
+
   @httpPut('/:presentationId')
   async updatePresentation(req: Request, res: Response): Promise<void> {
     try {
