@@ -10,13 +10,14 @@ import { Request, Response } from 'express';
 import { inject } from 'inversify';
 import { presentationModule } from '../Presentation/serviceIdentifiers';
 import { PresentationServiceInterface } from '../Presentation/PresentationServiceInterface';
-import { getMimeMapping, handleError, sendResponse } from './utils';
-import { StatusCode } from './StatusCode';
 import {
-  PresentationDbRow,
-  PresentationFileExtension,
-  UploadedPresentation,
-} from '../Presentation/types';
+  getMimeMapping,
+  handleError,
+  PRESENTATION_OWNER_COOKIE_VAL,
+  sendResponse,
+} from './utils';
+import { StatusCode } from './StatusCode';
+import { UploadedPresentation } from '../Presentation/types';
 
 @controller('/presentation')
 export class PresentationController implements interfaces.Controller {
@@ -32,8 +33,8 @@ export class PresentationController implements interfaces.Controller {
       const result = await this.presentationService.uploadPresentation(
         files as UploadedPresentation,
       );
-      this.setPresentationOwnerCookie(res, result);
-      sendResponse(res, StatusCode.OK, { presentation: result });
+      this.setPresentationOwnerCookie(res, result.presentation.id);
+      sendResponse(res, StatusCode.OK, result);
     } catch (error) {
       handleError(res, error);
     }
@@ -58,7 +59,13 @@ export class PresentationController implements interfaces.Controller {
   @httpGet('/:presentationId/metadata')
   async getPresentationMetadata(req: Request, res: Response): Promise<void> {
     try {
-      sendResponse(res, StatusCode.OK);
+      const { presentationId } = req.params;
+      const isPresentationOwnerCookie = req.cookies[presentationId];
+      const result = await this.presentationService.getPresentationWithMetadata(
+        presentationId,
+        isPresentationOwnerCookie,
+      );
+      sendResponse(res, StatusCode.OK, result);
     } catch (error) {
       handleError(res, error);
     }
@@ -82,10 +89,7 @@ export class PresentationController implements interfaces.Controller {
     }
   }
 
-  private setPresentationOwnerCookie(
-    res: Response,
-    presentation: PresentationDbRow,
-  ) {
-    res.cookie(presentation.id, 'PRES_OWNER');
+  private setPresentationOwnerCookie(res: Response, presentationId: string) {
+    res.cookie(presentationId, PRESENTATION_OWNER_COOKIE_VAL);
   }
 }

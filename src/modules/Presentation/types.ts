@@ -39,3 +39,11 @@ export interface PresentationFileWithFileExtension {
   presentationFile: Buffer;
   fileType: PresentationFileExtension;
 }
+
+export interface UploadPresentationResponse {
+  presentation: PresentationDbRow;
+}
+
+export interface GetPresentationWithMetadataResponse {
+  presentationWithMetadata: PresentationWithMetadata;
+}

@@ -11,12 +11,14 @@ import { PresentationFileServiceInterface } from './PresentationFileServiceInter
 import { fileStorageModule } from '../FileStorage/serviceIdentifiers';
 import { FileStorageServiceInterface } from '../FileStorage/FileStorageServiceInterface';
 import {
-  PresentationDbRow,
+  GetPresentationWithMetadataResponse,
   PresentationFileExtension,
   PresentationFileWithFileExtension,
   UploadedPresentation,
+  UploadPresentationResponse,
 } from './types';
 import { PresentationDbProviderInterface } from './PresentationDbProviderInterface';
+import { PRESENTATION_OWNER_COOKIE_VAL } from '../controllers/utils';
 
 @injectable()
 export class PresentationService implements PresentationServiceInterface {
@@ -35,7 +37,7 @@ export class PresentationService implements PresentationServiceInterface {
 
   async uploadPresentation(
     files: UploadedPresentation,
-  ): Promise<PresentationDbRow> {
+  ): Promise<UploadPresentationResponse> {
     if (!files || !files.presentation) {
       throw new BadRequestException();
     }
@@ -77,12 +79,18 @@ export class PresentationService implements PresentationServiceInterface {
       presentationFileName,
     );
 
-    return this.presentationProvider.insertPresentationEntity({
-      fileName,
-      numberOfSlides,
-      currentSlide: 1,
-      fileType: fileExtension,
-    });
+    const presentationEntity = await this.presentationProvider.insertPresentationEntity(
+      {
+        fileName,
+        numberOfSlides,
+        currentSlide: 1,
+        fileType: fileExtension,
+      },
+    );
+
+    return {
+      presentation: presentationEntity,
+    };
   }
 
   async getPresentation(
@@ -106,5 +114,34 @@ export class PresentationService implements PresentationServiceInterface {
       presentationFile,
       fileType,
     };
+  }
+
+  async getPresentationWithMetadata(
+    presentationId: string,
+    presentationOwnerCookie: string,
+  ): Promise<GetPresentationWithMetadataResponse> {
+    const presentationEntity = await this.presentationProvider.getPresentationEntity(
+      presentationId,
+    );
+
+    return {
+      presentationWithMetadata: {
+        ...presentationEntity,
+        isOwner: this.isRequesterPresentationOwner(
+          presentationId,
+          presentationOwnerCookie,
+        ),
+      },
+    };
+  }
+
+  isRequesterPresentationOwner(
+    presentationId: string,
+    presentationOwnerCookie: string,
+  ): boolean {
+    if (presentationOwnerCookie === PRESENTATION_OWNER_COOKIE_VAL) {
+      return true;
+    }
+    return false;
   }
 }

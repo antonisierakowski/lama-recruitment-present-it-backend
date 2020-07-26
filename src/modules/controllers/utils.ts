@@ -69,3 +69,5 @@ export const getMimeMapping = (fileType: PresentationFileExtension) => {
     }
   }
 };
+
+export const PRESENTATION_OWNER_COOKIE_VAL = 'PRES_OWNER';
