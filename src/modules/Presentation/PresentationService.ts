@@ -2,6 +2,7 @@ import { PresentationServiceInterface } from './PresentationServiceInterface';
 import {
   BadRequestException,
   UnsupportedMediaTypeException,
+  ResourceNotFoundException,
 } from '../../exceptions';
 import { inject, injectable, named } from 'inversify';
 import * as path from 'path';
@@ -12,6 +13,7 @@ import { FileStorageServiceInterface } from '../FileStorage/FileStorageServiceIn
 import {
   PresentationDbRow,
   PresentationFileExtension,
+  PresentationFileWithFileExtension,
   UploadedPresentation,
 } from './types';
 import { PresentationDbProviderInterface } from './PresentationDbProviderInterface';
@@ -44,6 +46,8 @@ export class PresentationService implements PresentationServiceInterface {
         name: presentationFileName,
       },
     } = files;
+
+    console.log(presentationDataBuffer.byteLength);
 
     const fileExtension = path.extname(
       presentationFileName,
@@ -81,7 +85,26 @@ export class PresentationService implements PresentationServiceInterface {
     });
   }
 
-  async getPresentation(presentationId: string): Promise<Buffer> {
-    return null;
+  async getPresentation(
+    presentationId: string,
+  ): Promise<PresentationFileWithFileExtension> {
+    let fileName: string;
+    let fileType: PresentationFileExtension;
+    try {
+      const presentation = await this.presentationProvider.getPresentationEntity(
+        presentationId,
+      );
+      fileName = presentation.file_name;
+      fileType = presentation.file_type;
+    } catch (error) {
+      throw new ResourceNotFoundException();
+    }
+
+    const presentationFile = await this.fileStorageService.getFile(fileName);
+
+    return {
+      presentationFile,
+      fileType,
+    };
   }
 }

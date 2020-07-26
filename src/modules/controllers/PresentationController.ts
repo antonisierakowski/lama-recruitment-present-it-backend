@@ -5,15 +5,18 @@ import {
   httpPost,
   httpPut,
   interfaces,
-  requestBody,
 } from 'inversify-express-utils';
 import { Request, Response } from 'express';
 import { inject } from 'inversify';
 import { presentationModule } from '../Presentation/serviceIdentifiers';
 import { PresentationServiceInterface } from '../Presentation/PresentationServiceInterface';
-import { handleError, sendResponse } from './utils';
+import { getMimeMapping, handleError, sendResponse } from './utils';
 import { StatusCode } from './StatusCode';
-import { PresentationDbRow, UploadedPresentation } from '../Presentation/types';
+import {
+  PresentationDbRow,
+  PresentationFileExtension,
+  UploadedPresentation,
+} from '../Presentation/types';
 
 @controller('/presentation')
 export class PresentationController implements interfaces.Controller {
@@ -39,11 +42,14 @@ export class PresentationController implements interfaces.Controller {
   @httpGet('/:presentationId')
   async getPresentation(req: Request, res: Response): Promise<void> {
     try {
-      const file = await this.presentationService.getPresentation(
+      const {
+        presentationFile,
+        fileType,
+      } = await this.presentationService.getPresentation(
         req.params.presentationId,
       );
-
-      sendResponse(res, StatusCode.OK);
+      res.writeHead(StatusCode.OK, getMimeMapping(fileType));
+      res.end(presentationFile);
     } catch (error) {
       handleError(res, error);
     }

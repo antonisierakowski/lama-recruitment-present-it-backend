@@ -34,3 +34,8 @@ export interface Presentation {
 export interface PresentationWithMetadata extends Partial<Presentation> {
   isOwner: boolean;
 }
+
+export interface PresentationFileWithFileExtension {
+  presentationFile: Buffer;
+  fileType: PresentationFileExtension;
+}
