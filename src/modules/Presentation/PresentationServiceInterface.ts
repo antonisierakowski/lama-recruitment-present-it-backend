@@ -31,4 +31,9 @@ export interface PresentationServiceInterface {
     newSlideNumber: number,
     presentationOwnerCookie: string,
   ): Promise<void>;
+
+  removePresentation(
+    presentationId: string,
+    presentationOwnerCookie: string,
+  ): Promise<void>;
 }

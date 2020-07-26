@@ -61,9 +61,10 @@ export class PresentationController implements interfaces.Controller {
 
   @httpGet('/:presentationId/metadata')
   async getPresentationMetadata(req: Request, res: Response): Promise<void> {
+    const { presentationId } = req.params;
+    const isPresentationOwnerCookie = req.cookies[presentationId];
+
     try {
-      const { presentationId } = req.params;
-      const isPresentationOwnerCookie = req.cookies[presentationId];
       const result = await this.presentationService.getPresentationWithMetadata(
         presentationId,
         isPresentationOwnerCookie,
@@ -76,10 +77,11 @@ export class PresentationController implements interfaces.Controller {
 
   @httpPut('/:presentationId')
   async updatePresentation(req: Request, res: Response): Promise<void> {
+    const { presentationId } = req.params;
+    const newSlideNumber = req.body.currentSlide;
+    const isPresentationOwnerCookie = req.cookies[presentationId];
+
     try {
-      const { presentationId } = req.params;
-      const newSlideNumber = req.body.currentSlide;
-      const isPresentationOwnerCookie = req.cookies[presentationId];
       await this.presentationService.updatePresentationCurrentSlide(
         presentationId,
         newSlideNumber,
@@ -93,14 +95,24 @@ export class PresentationController implements interfaces.Controller {
 
   @httpDelete('/:presentationId')
   async deletePresentation(req: Request, res: Response): Promise<void> {
+    const { presentationId } = req.params;
+    const isPresentationOwnerCookie = req.cookies[presentationId];
+
     try {
+      await this.presentationService.removePresentation(
+        presentationId,
+        isPresentationOwnerCookie,
+      );
       sendResponse(res, StatusCode.OK);
     } catch (error) {
       handleError(res, error);
     }
   }
 
-  private setPresentationOwnerCookie(res: Response, presentationId: string) {
+  private setPresentationOwnerCookie(
+    res: Response,
+    presentationId: string,
+  ): void {
     res.cookie(presentationId, PRESENTATION_OWNER_COOKIE_VAL);
   }
 }

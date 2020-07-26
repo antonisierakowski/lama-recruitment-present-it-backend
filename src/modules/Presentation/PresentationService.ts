@@ -100,6 +100,11 @@ export class PresentationService implements PresentationServiceInterface {
     const presentation = await this.presentationProvider.getPresentationEntity(
       presentationId,
     );
+
+    if (!presentation) {
+      throw new ResourceNotFoundException();
+    }
+
     const { file_name: fileName, file_type: fileType } = presentation;
 
     const presentationFile = await this.fileStorageService.getFile(fileName);
@@ -164,5 +169,27 @@ export class PresentationService implements PresentationServiceInterface {
       currentSlide: newSlideNumber,
       id: presentationId,
     });
+  }
+
+  async removePresentation(
+    presentationId: string,
+    presentationOwnerCookie: string,
+  ): Promise<void> {
+    const isRequesterPresentationOwner = this.isRequesterPresentationOwner(
+      presentationId,
+      presentationOwnerCookie,
+    );
+    if (!isRequesterPresentationOwner) {
+      throw new ForbiddenException();
+    }
+
+    const removedEntity = await this.presentationProvider.deletePresentationEntity(
+      presentationId,
+    );
+    if (isEmpty(removedEntity)) {
+      throw new ResourceNotFoundException();
+    }
+
+    await this.fileStorageService.removeFile(removedEntity.file_name);
   }
 }

@@ -3,6 +3,7 @@ import { AbstractDbProvider } from '../db/AbstractDbProvider';
 import { injectable } from 'inversify';
 import { Presentation, PresentationDbRow } from './types';
 import { Table } from '../db/types';
+import { first } from 'lodash';
 
 const mapPresentationKeys = (presentation: Presentation) => ({
   number_of_slides: presentation.numberOfSlides,
@@ -21,10 +22,10 @@ export class PresentationDbProvider extends AbstractDbProvider
 
     try {
       const result = await query
-        .table(Table.Presentation)
+        .table<PresentationDbRow>(Table.Presentation)
         .insert(mapPresentationKeys(presentation))
         .returning('*');
-      return result[0];
+      return first(result);
     } catch (error) {
       this.handleDbError(error);
     }
@@ -35,7 +36,7 @@ export class PresentationDbProvider extends AbstractDbProvider
 
     try {
       return await query
-        .select()
+        .select<PresentationDbRow>()
         .from(Table.Presentation)
         .where({ id })
         .first();
@@ -50,8 +51,8 @@ export class PresentationDbProvider extends AbstractDbProvider
     const query = await this.connection.getConnection();
 
     try {
-      return await query
-        .table(Table.Presentation)
+      await query
+        .table<PresentationDbRow>(Table.Presentation)
         .where({ id: presentation.id })
         .update(mapPresentationKeys(presentation as Presentation));
     } catch (error) {
@@ -59,12 +60,14 @@ export class PresentationDbProvider extends AbstractDbProvider
     }
   }
 
-  async deletePresentationEntity(id: string): Promise<void> {
+  async deletePresentationEntity(id: string): Promise<PresentationDbRow> {
     const query = await this.connection.getConnection();
-    try {
-      await query.table(Table.Presentation).where({ id }).delete();
-    } catch (error) {
-      this.handleDbError(error);
-    }
+
+    const result = await query
+      .table<PresentationDbRow>(Table.Presentation)
+      .where({ id })
+      .delete()
+      .returning('*');
+    return first(result);
   }
 }
