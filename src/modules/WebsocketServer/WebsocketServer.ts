@@ -5,6 +5,7 @@ import * as url from 'url';
 import { WebsocketServerInterface } from './WebsocketServerInterface';
 import { WebsocketChannelClusterInterface } from './WebsocketChannelClusterInterface';
 import { websocketServerModule } from './serviceIdentifiers';
+import { Socket } from 'net';
 
 @injectable()
 export class WebsocketServer implements WebsocketServerInterface {
@@ -20,13 +21,7 @@ export class WebsocketServer implements WebsocketServerInterface {
   }
 
   async open(port: number): Promise<void> {
-    this.server.on('upgrade', (req, socket, head) => {
-      const pathname = url.parse(req.url).pathname;
-      const channelId = pathname.substr(1);
-      this.wsServer.handleUpgrade(req, socket, head, (ws: WebSocket) => {
-        this.cluster.addConnection(channelId, ws);
-      });
-    });
+    this.server.on('upgrade', this.handleWsHandshake.bind(this));
     this.server.listen(port, () => {
       console.log(`WebSocket server opened on port ${port}...`);
     });
@@ -40,6 +35,18 @@ export class WebsocketServer implements WebsocketServerInterface {
         }
         resolve();
       });
+    });
+  }
+
+  private handleWsHandshake(
+    req: http.IncomingMessage,
+    socket: Socket,
+    head: Buffer,
+  ): void {
+    const pathname = url.parse(req.url).pathname;
+    const channelId = pathname.substr(1);
+    this.wsServer.handleUpgrade(req, socket, head, (ws: WebSocket) => {
+      this.cluster.addConnection(channelId, ws);
     });
   }
 }

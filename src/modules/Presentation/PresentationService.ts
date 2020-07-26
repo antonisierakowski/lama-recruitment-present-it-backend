@@ -14,6 +14,7 @@ import { fileStorageModule } from '../FileStorage/serviceIdentifiers';
 import { FileStorageServiceInterface } from '../FileStorage/FileStorageServiceInterface';
 import {
   GetPresentationWithMetadataResponse,
+  PresentationDbRow,
   PresentationFileExtension,
   PresentationFileWithFileExtension,
   UploadedPresentation,
@@ -80,14 +81,21 @@ export class PresentationService implements PresentationServiceInterface {
       presentationFileName,
     );
 
-    const presentationEntity = await this.presentationProvider.insertPresentationEntity(
-      {
-        fileName,
-        numberOfSlides,
-        currentSlide: 1,
-        fileType: fileExtension,
-      },
-    );
+    let presentationEntity: PresentationDbRow;
+
+    try {
+      presentationEntity = await this.presentationProvider.insertPresentationEntity(
+        {
+          fileName,
+          numberOfSlides,
+          currentSlide: 1,
+          fileType: fileExtension,
+        },
+      );
+    } catch (error) {
+      await this.fileStorageService.removeFile(fileName);
+      throw error;
+    }
 
     return {
       presentation: presentationEntity,

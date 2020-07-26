@@ -7,13 +7,15 @@ import { websocketServerModule } from './modules/WebsocketServer/serviceIdentifi
 import { WebsocketServerInterface } from './modules/WebsocketServer/WebsocketServerInterface';
 import { TriggerListenerInterface } from './modules/db/TriggerListenerInterface';
 import { dbModule } from './modules/db/serviceIdentifiers';
+import Knex from 'knex';
+import { ProcessSignal, rootRoute } from './modules/baseConstants';
 
 const restServerPort = process.env.REST_API_PORT || 8000;
 const websocketServerPort = process.env.WEBSOCKET_PORT || 8080;
 
 (async () => {
   const server = new InversifyExpressServer(container, null, {
-    rootPath: '/api',
+    rootPath: rootRoute,
   });
   server.setConfig(applyMiddleware);
   const restApi = server.build();
@@ -30,14 +32,19 @@ const websocketServerPort = process.env.WEBSOCKET_PORT || 8080;
   );
   await dbTriggerListener.connectAndStartListening();
 
-  process.on('SIGINT', async () => {
+  process.on(ProcessSignal.SIGINT, handleExit);
+  process.on(ProcessSignal.SIGTERM, handleExit);
+
+  async function handleExit() {
     dbTriggerListener.closeConnection();
-    console.log('\nReceived SIGINT, initialising grateful shutdown...');
+    console.log('\nReceived SIGINT, initialising graceful shutdown...');
     restApiInstance.close(() => {
       console.log('Rest server closed succesfuly.');
     });
+    const dbConnection = container.get<Knex>(dbModule.ConnectionInstance);
+    await dbConnection.destroy();
     await wsServer.close();
     console.log('Websocket server closed succesfuly.');
-    process.exit();
-  });
+    process.exit(0);
+  }
 })();

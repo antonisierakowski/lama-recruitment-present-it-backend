@@ -10,7 +10,7 @@
     "dev": "nodemon --watch '*.ts' --exec 'yarn lint && ts-node' src/run.ts",
     "build": "yarn lint && tsc",
     "lint": "eslint \"./src/**/*.ts\"",
-    "fix-lintig": "eslint \"./src/**/*.ts\" --fix",
+    "fix-lint": "eslint \"./src/**/*.ts\" --fix",
     "format": "prettier --write '*/**/*.ts'",
     "clear-static": "rm ./__static/*",
     "init-db": "./db/initialise_db.sh"

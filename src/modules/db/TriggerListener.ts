@@ -28,21 +28,18 @@ export class TriggerListener implements TriggerListenerInterface {
   async connectAndStartListening(): Promise<void> {
     this.rawConnection = await this.connection.client.acquireRawConnection();
     this.rawConnection.query('LISTEN new_event');
-    this.rawConnection.on(
-      'notification',
-      (data: NotificationResponseMessage) => {
-        const presentationEntity = JSON.parse(
-          data.payload,
-        ) as PresentationDbRow;
-        this.wsChannelCluster.notifyChannel<PresentationDbRow>(
-          presentationEntity.id,
-          presentationEntity,
-        );
-      },
-    );
+    this.rawConnection.on('notification', this.notify.bind(this));
   }
 
   closeConnection(): void {
     this.rawConnection.end();
+  }
+
+  private notify(data: NotificationResponseMessage) {
+    const presentationEntity = JSON.parse(data.payload) as PresentationDbRow;
+    this.wsChannelCluster.notifyChannel<PresentationDbRow>(
+      presentationEntity.id,
+      presentationEntity,
+    );
   }
 }

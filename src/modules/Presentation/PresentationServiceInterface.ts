@@ -1,8 +1,6 @@
 import {
   GetPresentationWithMetadataResponse,
-  PresentationDbRow,
   PresentationFileWithFileExtension,
-  PresentationWithMetadata,
   UploadedPresentation,
   UploadPresentationResponse,
 } from './types';
