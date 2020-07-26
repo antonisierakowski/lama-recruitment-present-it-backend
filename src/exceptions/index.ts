@@ -21,6 +21,7 @@ export const ValidationException = createHttpException(
 export const ResourceNotFoundException = createHttpException(
   StatusCode.RESOURCE_NOT_FOUND,
 );
+export const ForbiddenException = createHttpException(StatusCode.FORBIDDEN);
 export const UnsupportedMediaTypeException = createHttpException(
   StatusCode.UNSUPPORTED_MEDIA_TYPE,
 );
