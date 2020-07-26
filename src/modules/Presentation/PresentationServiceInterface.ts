@@ -25,4 +25,10 @@ export interface PresentationServiceInterface {
     presentationId: string,
     presentationOwnerCookie: string,
   ): boolean;
+
+  updatePresentationCurrentSlide(
+    presentationId: string,
+    newSlideNumber: number,
+    presentationOwnerCookie: string,
+  ): Promise<void>;
 }

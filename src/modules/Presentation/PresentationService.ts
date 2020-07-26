@@ -2,6 +2,8 @@ import { PresentationServiceInterface } from './PresentationServiceInterface';
 import {
   BadRequestException,
   UnsupportedMediaTypeException,
+  UnprocessableEntityException,
+  ForbiddenException,
   ResourceNotFoundException,
 } from '../../exceptions';
 import { inject, injectable, named } from 'inversify';
@@ -19,6 +21,7 @@ import {
 } from './types';
 import { PresentationDbProviderInterface } from './PresentationDbProviderInterface';
 import { PRESENTATION_OWNER_COOKIE_VAL } from '../controllers/utils';
+import { isEmpty } from 'lodash';
 
 @injectable()
 export class PresentationService implements PresentationServiceInterface {
@@ -48,8 +51,6 @@ export class PresentationService implements PresentationServiceInterface {
         name: presentationFileName,
       },
     } = files;
-
-    console.log(presentationDataBuffer.byteLength);
 
     const fileExtension = path.extname(
       presentationFileName,
@@ -96,17 +97,10 @@ export class PresentationService implements PresentationServiceInterface {
   async getPresentation(
     presentationId: string,
   ): Promise<PresentationFileWithFileExtension> {
-    let fileName: string;
-    let fileType: PresentationFileExtension;
-    try {
-      const presentation = await this.presentationProvider.getPresentationEntity(
-        presentationId,
-      );
-      fileName = presentation.file_name;
-      fileType = presentation.file_type;
-    } catch (error) {
-      throw new ResourceNotFoundException();
-    }
+    const presentation = await this.presentationProvider.getPresentationEntity(
+      presentationId,
+    );
+    const { file_name: fileName, file_type: fileType } = presentation;
 
     const presentationFile = await this.fileStorageService.getFile(fileName);
 
@@ -123,6 +117,10 @@ export class PresentationService implements PresentationServiceInterface {
     const presentationEntity = await this.presentationProvider.getPresentationEntity(
       presentationId,
     );
+
+    if (isEmpty(presentationEntity)) {
+      throw new ResourceNotFoundException();
+    }
 
     return {
       presentationWithMetadata: {
@@ -143,5 +141,28 @@ export class PresentationService implements PresentationServiceInterface {
       return true;
     }
     return false;
+  }
+
+  async updatePresentationCurrentSlide(
+    presentationId: string,
+    newSlideNumber: number,
+    presentationOwnerCookie: string,
+  ): Promise<void> {
+    const isRequesterPresentationOwner = this.isRequesterPresentationOwner(
+      presentationId,
+      presentationOwnerCookie,
+    );
+    if (!isRequesterPresentationOwner) {
+      throw new ForbiddenException();
+    }
+
+    if (!newSlideNumber) {
+      throw new UnprocessableEntityException();
+    }
+
+    await this.presentationProvider.updatePresentationEntity({
+      currentSlide: newSlideNumber,
+      id: presentationId,
+    });
   }
 }

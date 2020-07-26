@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { HttpException } from '../../exceptions';
 import { StatusCode } from './StatusCode';
-import { defaultErrorMsg } from '../../exceptions/defaultErrorMsg';
+import { defaultStatusMessage } from '../../exceptions/defaultStatusMessage';
 import { PresentationFileExtension } from '../Presentation/types';
 
 interface MessageResponse {
@@ -51,7 +51,7 @@ export const handleError = (res: Response, error: Error): void => {
     sendResponse(
       res,
       StatusCode.INTERNAL_ERROR,
-      defaultErrorMsg[StatusCode.INTERNAL_ERROR],
+      defaultStatusMessage[StatusCode.INTERNAL_ERROR],
     );
   }
 };

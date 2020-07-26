@@ -1,4 +1,4 @@
-import { defaultErrorMsg } from './defaultErrorMsg';
+import { defaultStatusMessage } from './defaultStatusMessage';
 import { StatusCode } from '../modules/controllers/StatusCode';
 
 export class HttpException extends Error {
@@ -9,13 +9,13 @@ export class HttpException extends Error {
 
 const createHttpException = (statusCode: StatusCode) => {
   return class extends HttpException {
-    constructor(message: string = defaultErrorMsg[statusCode]) {
+    constructor(message: string = defaultStatusMessage[statusCode]) {
       super(statusCode, message);
     }
   };
 };
 
-export const ValidationException = createHttpException(
+export const UnprocessableEntityException = createHttpException(
   StatusCode.UNPROCESSABLE_ENTITY,
 );
 export const ResourceNotFoundException = createHttpException(

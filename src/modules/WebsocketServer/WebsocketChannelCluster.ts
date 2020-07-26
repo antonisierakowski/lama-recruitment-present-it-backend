@@ -13,7 +13,7 @@ export class WebsocketChannelCluster
 
   addConnection(id: string, connection: WebSocket): void {
     if (!this.channels[id]) {
-      this.channels[id] = new WebsocketChannel();
+      this.createChannel(id);
     }
     this.channels[id].addConnection(connection);
   }
@@ -21,8 +21,12 @@ export class WebsocketChannelCluster
   notifyChannel<TData>(id: string, message: TData): void {
     const parsedData = JSON.stringify(message);
     if (!this.channels[id]) {
-      throw new Error(); // todo specify error
+      this.createChannel(id);
     }
     this.channels[id].notifyChannel(parsedData);
+  }
+
+  private createChannel(id: string): void {
+    this.channels[id] = new WebsocketChannel();
   }
 }

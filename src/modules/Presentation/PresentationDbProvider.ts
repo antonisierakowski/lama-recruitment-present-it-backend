@@ -19,18 +19,29 @@ export class PresentationDbProvider extends AbstractDbProvider
   ): Promise<PresentationDbRow> {
     const query = await this.connection.getConnection();
 
-    const result = await query
-      .table(Table.Presentation)
-      .insert(mapPresentationKeys(presentation))
-      .returning('*');
-
-    return result[0];
+    try {
+      const result = await query
+        .table(Table.Presentation)
+        .insert(mapPresentationKeys(presentation))
+        .returning('*');
+      return result[0];
+    } catch (error) {
+      this.handleDbError(error);
+    }
   }
 
   async getPresentationEntity(id: string): Promise<PresentationDbRow> {
     const query = await this.connection.getConnection();
 
-    return query.select().from(Table.Presentation).where({ id }).first();
+    try {
+      return await query
+        .select()
+        .from(Table.Presentation)
+        .where({ id })
+        .first();
+    } catch (error) {
+      this.handleDbError(error);
+    }
   }
 
   async updatePresentationEntity(
@@ -38,15 +49,22 @@ export class PresentationDbProvider extends AbstractDbProvider
   ): Promise<void> {
     const query = await this.connection.getConnection();
 
-    return query
-      .table(Table.Presentation)
-      .where({ id: presentation.id })
-      .update(mapPresentationKeys(presentation as Presentation));
+    try {
+      return await query
+        .table(Table.Presentation)
+        .where({ id: presentation.id })
+        .update(mapPresentationKeys(presentation as Presentation));
+    } catch (error) {
+      this.handleDbError(error);
+    }
   }
 
   async deletePresentationEntity(id: string): Promise<void> {
     const query = await this.connection.getConnection();
-
-    await query.table(Table.Presentation).where({ id }).delete();
+    try {
+      await query.table(Table.Presentation).where({ id }).delete();
+    } catch (error) {
+      this.handleDbError(error);
+    }
   }
 }

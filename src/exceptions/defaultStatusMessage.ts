@@ -1,9 +1,9 @@
 import { StatusCode } from '../modules/controllers/StatusCode';
 
-export const defaultErrorMsg = {
+export const defaultStatusMessage = {
   [StatusCode.OK]: 'Ok',
   [StatusCode.BAD_REQUEST]: 'Bad request',
-  [StatusCode.FORBIDDEN]: 'Access to the resource is forbidden',
+  [StatusCode.FORBIDDEN]: 'Operation is forbidden',
   [StatusCode.RESOURCE_NOT_FOUND]: 'Resource not found',
   [StatusCode.UNSUPPORTED_MEDIA_TYPE]: 'Unsupported media type',
   [StatusCode.UNPROCESSABLE_ENTITY]: 'Unprocessable entity',

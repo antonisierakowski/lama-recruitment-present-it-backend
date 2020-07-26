@@ -74,6 +74,14 @@ export class PresentationController implements interfaces.Controller {
   @httpPut('/:presentationId')
   async updatePresentation(req: Request, res: Response): Promise<void> {
     try {
+      const { presentationId } = req.params;
+      const newSlideNumber = req.body.currentSlide;
+      const isPresentationOwnerCookie = req.cookies[presentationId];
+      await this.presentationService.updatePresentationCurrentSlide(
+        presentationId,
+        newSlideNumber,
+        isPresentationOwnerCookie,
+      );
       sendResponse(res, StatusCode.OK);
     } catch (error) {
       handleError(res, error);
