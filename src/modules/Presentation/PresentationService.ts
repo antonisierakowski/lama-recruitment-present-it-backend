@@ -77,7 +77,7 @@ export class PresentationService implements PresentationServiceInterface {
       fileName,
       numberOfSlides,
       currentSlide: 1,
+      fileType: fileExtension,
     });
-    // finally, the db provider will save the url, noOfPages, current=1, and id, then return the entity to the user
   }
 }

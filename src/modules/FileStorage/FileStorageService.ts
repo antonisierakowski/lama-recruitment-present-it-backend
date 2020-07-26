@@ -9,14 +9,14 @@ import * as utils from './utils';
 export class FileStorageService implements FileStorageServiceInterface {
   protected readonly path: string = './__static';
 
-  async saveFile(file: Buffer, fileName: string): Promise<string> {
-    const fileNamePrefixed = `${shortid.generate()}.${fileName}`;
-    const fullPath = path.join(this.path, fileNamePrefixed);
+  async saveFile(file: Buffer): Promise<string> {
+    const fileName = shortid.generate();
+    const fullPath = path.join(this.path, fileName);
     if (!(await utils.doesFileExist(this.path))) {
       await utils.mkDir(this.path);
     }
     await utils.writeFile(fullPath, file);
-    return fileNamePrefixed;
+    return fileName;
   }
 
   async getFile(fileName: string): Promise<Buffer> {

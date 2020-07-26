@@ -12,10 +12,16 @@ export class PresentationDbProvider extends AbstractDbProvider
   ): Promise<PresentationDbRow> {
     const query = await this.connection.getConnection();
 
-    return query.table(Table.Presentation).insert({
-      number_of_slides: presentation.numberOfSlides,
-      current_slide: presentation.currentSlide,
-      file_name: presentation.fileName,
-    });
+    const result = await query
+      .table(Table.Presentation)
+      .insert({
+        number_of_slides: presentation.numberOfSlides,
+        current_slide: presentation.currentSlide,
+        file_name: presentation.fileName,
+        file_type: presentation.fileType,
+      })
+      .returning('*');
+
+    return result[0];
   }
 }

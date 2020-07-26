@@ -5,6 +5,7 @@ export interface PresentationDbRow {
   number_of_slides: number;
   current_slide: number;
   file_name: string;
+  file_type: PresentationFileExtension;
 }
 
 export enum PresentationFileExtension {
@@ -27,4 +28,5 @@ export interface Presentation {
   numberOfSlides: number;
   currentSlide: number;
   fileName: string;
+  fileType: PresentationFileExtension;
 }

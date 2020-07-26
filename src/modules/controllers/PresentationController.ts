@@ -25,10 +25,10 @@ export class PresentationController implements interfaces.Controller {
   async uploadPresentation(req: Request, res: Response): Promise<void> {
     const { files } = req;
     try {
-      await this.presentationService.uploadPresentation(
+      const result = await this.presentationService.uploadPresentation(
         files as UploadedPresentation,
       );
-      sendResponse(res, StatusCode.OK);
+      sendResponse(res, StatusCode.OK, result);
     } catch (error) {
       handleError(res, error);
     }
