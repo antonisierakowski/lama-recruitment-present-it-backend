@@ -15,7 +15,7 @@ Then `docker-compose up` will build the images and run the Docker containers. On
 ##### Prerequisites:
 * `node` or `nvm`
 * `yarn`
-* `postgresql`
+* `postgresql` (including `psql` CLI)
 
 Same as above, in project root run `cp .env.dist .env`. You will need to edit the environment variables so the server can access your local PostgreSQL installation.  
 Once you make sure PostgreSQL server is up, run `yarn init-db` to set up the database for the app.   
