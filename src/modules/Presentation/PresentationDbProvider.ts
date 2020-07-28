@@ -41,14 +41,17 @@ export class PresentationDbProvider extends AbstractDbProvider
 
   async updatePresentationEntity(
     presentation: Partial<Presentation>,
-  ): Promise<void> {
+  ): Promise<PresentationDbRow> {
     const query = await this.connection.getConnection();
 
     try {
-      await query
+      const result = await query
         .table<PresentationDbRow>(Table.Presentation)
         .where({ id: presentation.id })
-        .update(mapPresentationToDbEntity(presentation as Presentation));
+        .update(mapPresentationToDbEntity(presentation as Presentation))
+        .returning('*');
+
+      return first(result);
     } catch (error) {
       this.handleDbError(error);
     }

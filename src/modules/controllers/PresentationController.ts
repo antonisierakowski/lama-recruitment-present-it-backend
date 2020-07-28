@@ -82,12 +82,12 @@ export class PresentationController implements interfaces.Controller {
     const isPresentationOwnerCookie = req.cookies[presentationId];
 
     try {
-      await this.presentationService.updatePresentationCurrentSlide(
+      const result = await this.presentationService.updatePresentationCurrentSlide(
         presentationId,
         newSlideNumber,
         isPresentationOwnerCookie,
       );
-      sendResponse(res, StatusCode.OK);
+      sendResponse(res, StatusCode.OK, result);
     } catch (error) {
       handleError(res, error);
     }

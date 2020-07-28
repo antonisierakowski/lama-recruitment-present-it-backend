@@ -40,7 +40,7 @@ export interface PresentationFileWithFileExtension {
   fileType: PresentationFileExtension;
 }
 
-export interface UploadPresentationResponse {
+export interface PresentationEntityResponse {
   presentation: PresentationDbRow;
 }
 

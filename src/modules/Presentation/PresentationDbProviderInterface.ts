@@ -7,7 +7,9 @@ export interface PresentationDbProviderInterface {
 
   getPresentationEntity(id: string): Promise<PresentationDbRow>;
 
-  updatePresentationEntity(presentation: Partial<Presentation>): Promise<void>;
+  updatePresentationEntity(
+    presentation: Partial<Presentation>,
+  ): Promise<PresentationDbRow>;
 
   deletePresentationEntity(id: string): Promise<PresentationDbRow>;
 }

@@ -1,14 +1,15 @@
 import {
   GetPresentationWithMetadataResponse,
+  PresentationDbRow,
   PresentationFileWithFileExtension,
   UploadedPresentation,
-  UploadPresentationResponse,
+  PresentationEntityResponse,
 } from './types';
 
 export interface PresentationServiceInterface {
   uploadPresentation(
     files: UploadedPresentation,
-  ): Promise<UploadPresentationResponse>;
+  ): Promise<PresentationEntityResponse>;
 
   getPresentation(
     presentationId: string,
@@ -28,7 +29,7 @@ export interface PresentationServiceInterface {
     presentationId: string,
     newSlideNumber: number,
     presentationOwnerCookie: string,
-  ): Promise<void>;
+  ): Promise<PresentationEntityResponse>;
 
   removePresentation(
     presentationId: string,

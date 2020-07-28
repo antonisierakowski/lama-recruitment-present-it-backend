@@ -18,7 +18,7 @@ import {
   PresentationFileExtension,
   PresentationFileWithFileExtension,
   UploadedPresentation,
-  UploadPresentationResponse,
+  PresentationEntityResponse,
 } from './types';
 import { PresentationDbProviderInterface } from './PresentationDbProviderInterface';
 import { PRESENTATION_OWNER_COOKIE_VAL } from '../controllers/utils';
@@ -41,7 +41,7 @@ export class PresentationService implements PresentationServiceInterface {
 
   async uploadPresentation(
     files: UploadedPresentation,
-  ): Promise<UploadPresentationResponse> {
+  ): Promise<PresentationEntityResponse> {
     if (!files || !files.presentation || isArray(files.presentation)) {
       throw new BadRequestException();
     }
@@ -162,7 +162,7 @@ export class PresentationService implements PresentationServiceInterface {
     presentationId: string,
     newSlideNumber: number,
     presentationOwnerCookie: string,
-  ): Promise<void> {
+  ): Promise<PresentationEntityResponse> {
     const isRequesterPresentationOwner = this.isRequesterPresentationOwner(
       presentationId,
       presentationOwnerCookie,
@@ -175,10 +175,14 @@ export class PresentationService implements PresentationServiceInterface {
       throw new UnprocessableEntityException();
     }
 
-    await this.presentationProvider.updatePresentationEntity({
+    const result = await this.presentationProvider.updatePresentationEntity({
       currentSlide: newSlideNumber,
       id: presentationId,
     });
+
+    return {
+      presentation: result,
+    };
   }
 
   async removePresentation(
