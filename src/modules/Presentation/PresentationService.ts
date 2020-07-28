@@ -135,13 +135,15 @@ export class PresentationService implements PresentationServiceInterface {
       throw new ResourceNotFoundException();
     }
 
+    const isRequesterPresentationOwner = this.isRequesterPresentationOwner(
+      presentationId,
+      presentationOwnerCookie,
+    );
+
     return {
-      presentationWithMetadata: {
-        ...presentationEntity,
-        isOwner: this.isRequesterPresentationOwner(
-          presentationId,
-          presentationOwnerCookie,
-        ),
+      presentation: presentationEntity,
+      metadata: {
+        isOwner: isRequesterPresentationOwner,
       },
     };
   }
