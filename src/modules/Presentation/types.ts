@@ -31,7 +31,7 @@ export interface Presentation {
   fileType: PresentationFileExtension;
 }
 
-export interface PresentationWithMetadata extends Partial<Presentation> {
+export interface PresentationMetadata {
   isOwner: boolean;
 }
 
@@ -45,5 +45,6 @@ export interface UploadPresentationResponse {
 }
 
 export interface GetPresentationWithMetadataResponse {
-  presentationWithMetadata: PresentationWithMetadata;
+  presentation: PresentationDbRow;
+  metadata: PresentationMetadata;
 }
