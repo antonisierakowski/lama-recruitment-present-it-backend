@@ -56,9 +56,6 @@ export class PresentationService implements PresentationServiceInterface {
     const fileExtension = path.extname(
       presentationFileName,
     ) as PresentationFileExtension;
-    if (!Object.values(PresentationFileExtension).includes(fileExtension)) {
-      throw new UnsupportedMediaTypeException();
-    }
 
     let numberOfSlides: number;
     switch (fileExtension) {
@@ -73,6 +70,9 @@ export class PresentationService implements PresentationServiceInterface {
           presentationDataBuffer,
         );
         break;
+      }
+      default: {
+        throw new UnsupportedMediaTypeException();
       }
     }
 
