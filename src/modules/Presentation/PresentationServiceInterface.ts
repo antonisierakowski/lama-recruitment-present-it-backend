@@ -1,6 +1,5 @@
 import {
   GetPresentationWithMetadataResponse,
-  PresentationDbRow,
   PresentationFileWithFileExtension,
   UploadedPresentation,
   PresentationEntityResponse,
