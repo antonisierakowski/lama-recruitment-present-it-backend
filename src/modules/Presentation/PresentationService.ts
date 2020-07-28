@@ -58,22 +58,27 @@ export class PresentationService implements PresentationServiceInterface {
     ) as PresentationFileExtension;
 
     let numberOfSlides: number;
-    switch (fileExtension) {
-      case PresentationFileExtension.PDF: {
-        numberOfSlides = await this.pdfService.getNumberOfSlides(
-          presentationDataBuffer,
-        );
-        break;
+
+    try {
+      switch (fileExtension) {
+        case PresentationFileExtension.PDF: {
+          numberOfSlides = await this.pdfService.getNumberOfSlides(
+            presentationDataBuffer,
+          );
+          break;
+        }
+        case PresentationFileExtension.PPTX: {
+          numberOfSlides = await this.pptxService.getNumberOfSlides(
+            presentationDataBuffer,
+          );
+          break;
+        }
+        default: {
+          throw new UnsupportedMediaTypeException();
+        }
       }
-      case PresentationFileExtension.PPTX: {
-        numberOfSlides = await this.pptxService.getNumberOfSlides(
-          presentationDataBuffer,
-        );
-        break;
-      }
-      default: {
-        throw new UnsupportedMediaTypeException();
-      }
+    } catch (error) {
+      throw new BadRequestException();
     }
 
     const fileName = await this.fileStorageService.saveFile(
