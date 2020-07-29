@@ -1,6 +1,7 @@
-FROM node:12.18.2-alpine
+FROM node:12.18.3
 WORKDIR /usr/src/app
 COPY . .
+RUN apt-get update && apt-get -y install libreoffice
 RUN yarn install
 RUN yarn build
 EXPOSE 8000 8080

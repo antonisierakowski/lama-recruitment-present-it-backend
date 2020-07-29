@@ -1,7 +1,6 @@
 import { WebsocketChannelInterface } from './WebsocketChannelInterface';
 import { injectable } from 'inversify';
 import WebSocket from 'ws';
-import { omit, isEmpty } from 'lodash';
 
 @injectable()
 export class WebsocketChannel implements WebsocketChannelInterface {

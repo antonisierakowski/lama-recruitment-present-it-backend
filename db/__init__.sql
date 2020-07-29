@@ -10,14 +10,11 @@ BEGIN
 END;
 $function$;
 
-CREATE TYPE presentation_type AS ENUM ('.pdf', '.pptx');
-
 CREATE TABLE public.presentation (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   number_of_slides SMALLINT NOT NULL,
   current_slide SMALLINT NOT NULL CHECK (current_slide >= 1),
   file_name VARCHAR(14) NOT NULL,
-  file_type presentation_type NOT NULL,
   CHECK (current_slide <= number_of_slides)
 );
 

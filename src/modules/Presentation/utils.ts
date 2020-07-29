@@ -6,5 +6,4 @@ export const mapPresentationToDbEntity = (
   number_of_slides: presentation.numberOfSlides,
   current_slide: presentation.currentSlide,
   file_name: presentation.fileName,
-  file_type: presentation.fileType,
 });
