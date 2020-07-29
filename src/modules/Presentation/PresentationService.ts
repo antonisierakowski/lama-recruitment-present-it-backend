@@ -199,8 +199,8 @@ export class PresentationService implements PresentationServiceInterface {
     await this.fileStorageService.removeFile(removedEntity.file_name);
   }
 
-  private isFileSupported(fileExtension: string): boolean {
-    if (!Object.keys(PresentationFileExtension).includes(fileExtension)) {
+  private isFileSupported(fileExtension: PresentationFileExtension): boolean {
+    if (Object.values(PresentationFileExtension).includes(fileExtension)) {
       return true;
     }
     throw new UnsupportedMediaTypeException();

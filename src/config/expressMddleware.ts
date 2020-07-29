@@ -6,7 +6,13 @@ import fileUpload from 'express-fileupload';
 import cookieParser from 'cookie-parser';
 
 export const applyMiddleware = (app: Application): void => {
-  app.use(cors());
+  app.use(
+    cors({
+      origin: process.env.FRONTEND_DOMAIN,
+      credentials: true,
+      exposedHeaders: ['set-cookie'],
+    }),
+  );
   app.use(bodyParser.json());
   app.use(cookieParser());
   app.use(morgan('tiny'));
