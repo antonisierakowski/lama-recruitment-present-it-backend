@@ -3,6 +3,7 @@ import { WebsocketChannel } from './WebsocketChannel';
 import WebSocket from 'ws';
 import { WebsocketChannelClusterInterface } from './WebsocketChannelClusterInterface';
 import { injectable } from 'inversify';
+import { omit } from 'lodash';
 
 type WSChannels = Record<string, WebsocketChannelInterface>;
 
@@ -15,7 +16,12 @@ export class WebsocketChannelCluster
     if (!this.channels[id]) {
       this.createChannel(id);
     }
-    this.channels[id].addConnection(connection);
+    const connectionId = Symbol();
+    this.channels[id].addConnection(connectionId, connection);
+    connection.on('close', () => {
+      this.channels[id].removeConnection(connectionId);
+      this.removeChannelIfEmpty(id);
+    });
   }
 
   notifyChannel<TData>(id: string, message: TData): void {
@@ -28,5 +34,11 @@ export class WebsocketChannelCluster
 
   private createChannel(id: string): void {
     this.channels[id] = new WebsocketChannel();
+  }
+
+  private removeChannelIfEmpty(channelId: string): void {
+    if (this.channels[channelId].isEmpty) {
+      this.channels = omit(this.channels, channelId);
+    }
   }
 }
