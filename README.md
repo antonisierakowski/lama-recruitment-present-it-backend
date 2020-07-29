@@ -5,7 +5,7 @@ This repo hosts backend for Lama Media recruitment task called present-it. [For 
 
 You can run the server in two ways:
 
-### Docker
+### Docker (recommended)
 ##### Prerequisites:
 * `docker`
 * `docker-compose`
@@ -18,6 +18,7 @@ Then `docker-compose up` will build the images and run the Docker containers. On
 * `node` or `nvm`
 * `yarn`
 * `postgresql` (including `psql` CLI)
+* `libreoffice` command line tools
 
 Same as above, in project root run `cp .env.dist .env`. You will need to edit the environment variables so the server can access your local PostgreSQL installation.  
 Once you make sure PostgreSQL server is up, run `yarn init-db` to set up the database for the app.   
@@ -37,10 +38,10 @@ The REST api (on default port :8000) exposes the following endpoints:
 
 | Endpoint                                     | Method | Request body                                                                                               | Example response                                                                                                                                                                                                                                                                                                                                               |
 |----------------------------------------------|--------|------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `/api/presentation`                          | POST   | `.pdx` or `.pttf` file. The file must be under `presentation` key and request must be of `form-data` type. | <pre> {<br>   "status": 200,<br>   "response": {<br>     "presentation": {<br>       "id": "c690ade2-74dd-42c1-bdd2-6a041e5df333",<br>       "number_of_slides": 9,<br>       "current_slide": 1,<br>       "file_name": "MR7wj2zeF",<br>       "file_type": ".pptx"<br>     }<br>   }<br> } </pre>                                                            |
+| `/api/presentation`                          | POST   | `.pdf` or `.pttx` file. The file must be under `presentation` key and request must be of `multipart/form-data` type. | <pre> {<br>   "status": 200,<br>   "response": {<br>     "presentation": {<br>       "id": "c690ade2-74dd-42c1-bdd2-6a041e5df333",<br>       "number_of_slides": 9,<br>       "current_slide": 1,<br>       "file_name": "MR7wj2zeF",<br>     }<br>   }<br> } </pre>                                                            |
 | `/api/presentation/:presentationId`          | GET    | -                                                                                                          | *binary*                                                                                                                                                                                                                                                                                                                                                       |
-| `/api/presentation/:presentationId/metadata` | GET    | -                                                                                                          | <pre> {<br>   "status": 200,<br>   "response": {<br>     "presentation": {<br>       "id": "c690ade2-74dd-42c1-bdd2-6a041e5df333",<br>       "number_of_slides": 9,<br>       "current_slide": 1,<br>       "file_name": "MR7wj2zeF",<br>       "file_type": ".pptx"<br>     }<br>     "metadata": {<br>       "isOwner": false<br>     }<br>   }<br> } </pre> |
-| `/api/presentation/:presentationId`          | PUT    | <pre> {<br>    "currentSlide": number<br> } </pre>                                                         | <pre> {<br>   "status": 200,<br>   "response": {<br>     "presentation": {<br>       "id": "c690ade2-74dd-42c1-bdd2-6a041e5df333",<br>       "number_of_slides": 9,<br>       "current_slide": 1,<br>       "file_name": "MR7wj2zeF",<br>       "file_type": ".pptx"<br>     }<br>   }<br> } </pre>                                                                                                                                                                                                                                                                  |
+| `/api/presentation/:presentationId/metadata` | GET    | -                                                                                                          | <pre> {<br>   "status": 200,<br>   "response": {<br>     "presentation": {<br>       "id": "c690ade2-74dd-42c1-bdd2-6a041e5df333",<br>       "number_of_slides": 9,<br>       "current_slide": 1,<br>       "file_name": "MR7wj2zeF",<br>     }<br>     "metadata": {<br>       "isOwner": false<br>     }<br>   }<br> } </pre> |
+| `/api/presentation/:presentationId`          | PUT    | <pre> {<br>    "currentSlide": number<br> } </pre>                                                         | <pre> {<br>   "status": 200,<br>   "response": {<br>     "presentation": {<br>       "id": "c690ade2-74dd-42c1-bdd2-6a041e5df333",<br>       "number_of_slides": 9,<br>       "current_slide": 1,<br>       "file_name": "MR7wj2zeF",<br>     }<br>   }<br> } </pre>                                                                                                                                                                                                                                                                  |
 | `/api/presentation/:presentationId`          | DELETE | -                                                                                                          | <pre> {<br>   "status": 200,<br>   "response": {<br>     "message": "Ok"<br>   }<br> } </pre>                                                                                                                                                                                                                                                                  |
 
 ### WebSocket
@@ -50,4 +51,4 @@ So using default port in development that would be:
 ```
 ws://localhost:8080/:presentationId
 ```
-Once you're connected, you will receive updates on the presentation entity of which ID you passed in.
+Once you're connected, you will receive DB updates on the presentation entity of which ID you passed in.

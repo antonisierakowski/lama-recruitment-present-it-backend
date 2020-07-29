@@ -1,38 +1,34 @@
 import { PresentationServiceInterface } from './PresentationServiceInterface';
 import {
   BadRequestException,
-  UnsupportedMediaTypeException,
-  UnprocessableEntityException,
   ForbiddenException,
   ResourceNotFoundException,
+  UnprocessableEntityException,
+  UnsupportedMediaTypeException,
 } from '../../exceptions';
-import { inject, injectable, named } from 'inversify';
+import { inject, injectable } from 'inversify';
 import * as path from 'path';
 import { presentationModule } from './serviceIdentifiers';
-import { PresentationFileServiceInterface } from './PresentationFileServiceInterface';
+import { PdfServiceInterface } from './PdfServiceInterface';
 import { fileStorageModule } from '../FileStorage/serviceIdentifiers';
 import { FileStorageServiceInterface } from '../FileStorage/FileStorageServiceInterface';
 import {
   GetPresentationWithMetadataResponse,
   PresentationDbRow,
+  PresentationEntityResponse,
   PresentationFileExtension,
   PresentationFileWithFileExtension,
   UploadedPresentation,
-  PresentationEntityResponse,
 } from './types';
 import { PresentationDbProviderInterface } from './PresentationDbProviderInterface';
 import { PRESENTATION_OWNER_COOKIE_VAL } from '../controllers/utils';
-import { isEmpty, isArray } from 'lodash';
+import { isArray, isEmpty } from 'lodash';
 
 @injectable()
 export class PresentationService implements PresentationServiceInterface {
   constructor(
-    @inject(presentationModule.PresentationFileService)
-    @named('PptxService')
-    private pptxService: PresentationFileServiceInterface,
-    @inject(presentationModule.PresentationFileService)
-    @named('PdfService')
-    private pdfService: PresentationFileServiceInterface,
+    @inject(presentationModule.PdfService)
+    private pdfService: PdfServiceInterface,
     @inject(fileStorageModule.FileStorageService)
     private fileStorageService: FileStorageServiceInterface,
     @inject(presentationModule.PresentationDbProvider)
@@ -47,36 +43,29 @@ export class PresentationService implements PresentationServiceInterface {
     }
 
     const {
-      presentation: {
-        data: presentationDataBuffer,
-        name: presentationFileName,
-      },
+      presentation: { name: presentationFileName },
+    } = files;
+    let {
+      presentation: { data: presentationDataBuffer },
     } = files;
 
     const fileExtension = path.extname(
       presentationFileName,
     ) as PresentationFileExtension;
 
-    let numberOfSlides: number;
+    this.isFileSupported(fileExtension);
 
+    if (fileExtension === PresentationFileExtension.PPTX) {
+      presentationDataBuffer = await this.pdfService.convertToPdf(
+        presentationDataBuffer,
+      );
+    }
+
+    let numberOfSlides: number;
     try {
-      switch (fileExtension) {
-        case PresentationFileExtension.PDF: {
-          numberOfSlides = await this.pdfService.getNumberOfSlides(
-            presentationDataBuffer,
-          );
-          break;
-        }
-        case PresentationFileExtension.PPTX: {
-          numberOfSlides = await this.pptxService.getNumberOfSlides(
-            presentationDataBuffer,
-          );
-          break;
-        }
-        default: {
-          throw new UnsupportedMediaTypeException();
-        }
-      }
+      numberOfSlides = await this.pdfService.getNumberOfSlides(
+        presentationDataBuffer,
+      );
     } catch (error) {
       throw new BadRequestException();
     }
@@ -94,7 +83,6 @@ export class PresentationService implements PresentationServiceInterface {
           fileName,
           numberOfSlides,
           currentSlide: 1,
-          fileType: fileExtension,
         },
       );
     } catch (error) {
@@ -118,13 +106,12 @@ export class PresentationService implements PresentationServiceInterface {
       throw new ResourceNotFoundException();
     }
 
-    const { file_name: fileName, file_type: fileType } = presentation;
+    const { file_name: fileName } = presentation;
 
     const presentationFile = await this.fileStorageService.getFile(fileName);
 
     return {
       presentationFile,
-      fileType,
     };
   }
 
@@ -210,5 +197,12 @@ export class PresentationService implements PresentationServiceInterface {
     }
 
     await this.fileStorageService.removeFile(removedEntity.file_name);
+  }
+
+  private isFileSupported(fileExtension: string): boolean {
+    if (!Object.keys(PresentationFileExtension).includes(fileExtension)) {
+      return true;
+    }
+    throw new UnsupportedMediaTypeException();
   }
 }

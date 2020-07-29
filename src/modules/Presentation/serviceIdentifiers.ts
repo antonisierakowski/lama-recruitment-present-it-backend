@@ -1,6 +1,5 @@
 export const presentationModule = {
   PresentationService: Symbol('PresentationService'),
-  PresentationFileService: Symbol('PresentationFileService'),
-  XmlParser: Symbol('XmlParser'),
+  PdfService: Symbol('PdfService'),
   PresentationDbProvider: Symbol('PresentationDbProvider'),
 };

@@ -2,7 +2,6 @@ import { Response } from 'express';
 import { HttpException } from '../../exceptions';
 import { StatusCode } from './StatusCode';
 import { defaultStatusMessage } from '../../exceptions/defaultStatusMessage';
-import { PresentationFileExtension } from '../Presentation/types';
 
 interface MessageResponse {
   message: string;
@@ -53,20 +52,6 @@ export const handleError = (res: Response, error: Error): void => {
       StatusCode.INTERNAL_ERROR,
       defaultStatusMessage[StatusCode.INTERNAL_ERROR],
     );
-  }
-};
-
-export const mapMimeHeader = (fileType: PresentationFileExtension) => {
-  switch (fileType) {
-    case PresentationFileExtension.PPTX: {
-      return {
-        'Content-Type':
-          'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-      };
-    }
-    case PresentationFileExtension.PDF: {
-      return { 'Content-Type': 'application/pdf' };
-    }
   }
 };
 
