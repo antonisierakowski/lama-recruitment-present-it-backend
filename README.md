@@ -1,5 +1,5 @@
-## present-it
-This repo hosts backend for Lama Media recruitment task called present-it. [For the frontend part, visit this link.](https://github.com/antonisierakowski/lama-recruitment-present-it-frontend)  
+## presentations
+Backend service for `presentations` web app. [For the frontend part, visit this link.](https://github.com/antonisierakowski/presentations-frontend)  
 
 ## Intall & run
 
