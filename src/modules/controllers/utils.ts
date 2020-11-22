@@ -56,3 +56,4 @@ export const handleError = (res: Response, error: Error): void => {
 };
 
 export const PRESENTATION_OWNER_COOKIE_VAL = 'PRES_OWNER';
+export const PRESENTATION_OWNER_COOKIE_MAX_AGE = 360000;

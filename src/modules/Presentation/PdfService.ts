@@ -1,53 +1,29 @@
 import { PdfServiceInterface } from './PdfServiceInterface';
 import { injectable } from 'inversify';
-// @ts-ignore
-import tmp from 'temporary';
-import { exec } from 'child_process';
-import path from 'path';
-import fs from 'fs';
-import { UnsupportedMediaTypeException } from '../../exceptions';
-import pdfjs from 'pdfjs-dist';
+import { spawn } from 'child_process';
+import { Readable } from 'stream';
 
 @injectable()
 export class PdfService implements PdfServiceInterface {
-  async getNumberOfSlides(file: Buffer): Promise<number> {
-    const document = await pdfjs.getDocument(file).promise;
-    return document.numPages;
-  }
-
-  async convertToPdf(fileToConvert: Buffer): Promise<Buffer> {
-    return new Promise((resolve, reject) => {
-      const file = new tmp.File();
-      const outdir = new tmp.Dir();
-      file.writeFile(fileToConvert, (error: Error) => {
-        if (error) {
-          reject(new UnsupportedMediaTypeException());
-        }
-
-        const cmd = `soffice --headless --convert-to pdf ${file.path} --outdir ${outdir.path}`;
-
-        exec(cmd, (error: Error) => {
-          if (error) {
-            reject(error);
-          } else {
-            fs.readFile(
-              path.join(
-                outdir.path,
-                path.basename(
-                  file.path,
-                  path.extname(path.basename(file.path)),
-                ) + '.pdf',
-              ),
-              (error: Error, resultFile: Buffer) => {
-                if (error) {
-                  reject(error);
-                }
-                resolve(resultFile);
-              },
-            );
-          }
-        });
+  async getNumberOfSlides(pdfReadable: Readable): Promise<number> {
+    const args = [
+      '-c',
+      "sed -n 's|.*/Count -\\{0,1\\}\\([0-9]\\{1,\\}\\).*|\\1|p' | sort -rn | head -n 1",
+    ];
+    const cp = spawn('sh', args);
+    const { stdin, stdout } = cp;
+    pdfReadable.pipe(stdin);
+    return new Promise(resolve => {
+      stdout.on('data', (data: Buffer) => {
+        resolve(+data.toString());
       });
     });
+  }
+
+  convertToPdf(readableToConvert: Readable): Readable {
+    const unoconv = spawn('unoconv', ['-f', 'pdf', '--stdin', '--stdout']);
+    const { stdin, stdout } = unoconv;
+    readableToConvert.pipe(stdin);
+    return stdout;
   }
 }

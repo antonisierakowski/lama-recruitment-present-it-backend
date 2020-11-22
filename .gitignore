@@ -3,3 +3,5 @@
 node_modules/
 dist/
 __static/
+.DS_Store
+yarn-error.log

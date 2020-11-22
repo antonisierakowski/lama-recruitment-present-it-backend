@@ -1,18 +1,16 @@
 import {
   GetPresentationWithMetadataResponse,
-  PresentationFileWithFileExtension,
   UploadedPresentation,
   PresentationEntityResponse,
 } from './types';
+import { ReadStream } from 'fs';
 
 export interface PresentationServiceInterface {
   uploadPresentation(
-    files: UploadedPresentation,
+    presentation: UploadedPresentation,
   ): Promise<PresentationEntityResponse>;
 
-  getPresentation(
-    presentationId: string,
-  ): Promise<PresentationFileWithFileExtension>;
+  getPresentation(presentationId: string): Promise<ReadStream>;
 
   getPresentationWithMetadata(
     presentationId: string,

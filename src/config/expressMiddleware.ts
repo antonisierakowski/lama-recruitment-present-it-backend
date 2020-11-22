@@ -2,8 +2,10 @@ import { Application } from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
-import fileUpload from 'express-fileupload';
 import cookieParser from 'cookie-parser';
+import multer from 'multer';
+
+export const MAX_FILE_SIZE = 1e8;
 
 export const applyMiddleware = (app: Application): void => {
   app.use(
@@ -16,5 +18,11 @@ export const applyMiddleware = (app: Application): void => {
   app.use(bodyParser.json());
   app.use(cookieParser());
   app.use(morgan('tiny'));
-  app.use(fileUpload());
 };
+
+export const uploadPresentationMiddleware = () =>
+  multer({
+    limits: {
+      fileSize: MAX_FILE_SIZE,
+    },
+  }).single('presentation');

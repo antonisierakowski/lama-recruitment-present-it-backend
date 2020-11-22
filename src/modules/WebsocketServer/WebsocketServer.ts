@@ -1,4 +1,4 @@
-import WebSocket, { Server } from 'ws';
+import WebSocket from 'ws';
 import { inject, injectable } from 'inversify';
 import * as http from 'http';
 import * as url from 'url';
@@ -9,7 +9,7 @@ import { Socket } from 'net';
 
 @injectable()
 export class WebsocketServer implements WebsocketServerInterface {
-  private wsServer: Server;
+  private wsServer: WebSocket.Server;
   private server: http.Server;
 
   constructor(

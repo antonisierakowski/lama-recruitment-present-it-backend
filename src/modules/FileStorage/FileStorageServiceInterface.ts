@@ -1,7 +1,10 @@
-export interface FileStorageServiceInterface {
-  saveFile(file: Buffer, fileName: string): Promise<string>;
+import { Readable } from 'stream';
+import { ReadStream } from 'fs';
 
-  getFile(fileName: string): Promise<Buffer>;
+export interface FileStorageServiceInterface {
+  saveFile(file: Readable): Promise<string>;
+
+  getFile(fileName: string): Promise<ReadStream>;
 
   removeFile(fileName: string): Promise<void>;
 }

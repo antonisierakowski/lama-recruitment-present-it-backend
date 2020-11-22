@@ -1,4 +1,4 @@
-import { UploadedFile } from 'express-fileupload';
+import { Readable } from 'stream';
 
 export interface PresentationDbRow {
   id: string;
@@ -13,7 +13,8 @@ export enum PresentationFileExtension {
 }
 
 export type UploadedPresentation = {
-  presentation: UploadedFile;
+  fileType: PresentationFileExtension;
+  presentationStream: Readable;
 };
 
 export interface ParsedPresentationXmlFile {
@@ -31,10 +32,6 @@ export interface Presentation {
 
 export interface PresentationMetadata {
   isOwner: boolean;
-}
-
-export interface PresentationFileWithFileExtension {
-  presentationFile: Buffer;
 }
 
 export interface PresentationEntityResponse {

@@ -23,10 +23,7 @@
     "rules": {
         "object-curly-spacing": ["error", "always"],
         "linebreak-style": ["error", "unix"],
-        "quotes": [1, "single"],
-        "semi": [1, "always"],
         "no-unused-vars": "off",
-        "@typescript-eslint/no-unused-vars": "warn",
-        "comma-dangle": [1, "always-multiline"]
+        "@typescript-eslint/no-unused-vars": "warn"
     }
 }

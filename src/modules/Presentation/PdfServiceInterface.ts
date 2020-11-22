@@ -1,5 +1,7 @@
-export interface PdfServiceInterface {
-  getNumberOfSlides(file: Buffer): Promise<number>;
+import { Readable } from 'stream';
 
-  convertToPdf(file: Buffer): Promise<Buffer>;
+export interface PdfServiceInterface {
+  getNumberOfSlides(pdfReadable: Readable): Promise<number>;
+
+  convertToPdf(readableToConvert: Readable): Readable;
 }

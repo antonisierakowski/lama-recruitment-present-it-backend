@@ -7,22 +7,21 @@ import {
   UnsupportedMediaTypeException,
 } from '../../exceptions';
 import { inject, injectable } from 'inversify';
-import * as path from 'path';
 import { presentationModule } from './serviceIdentifiers';
 import { PdfServiceInterface } from './PdfServiceInterface';
 import { fileStorageModule } from '../FileStorage/serviceIdentifiers';
 import { FileStorageServiceInterface } from '../FileStorage/FileStorageServiceInterface';
 import {
   GetPresentationWithMetadataResponse,
-  PresentationDbRow,
   PresentationEntityResponse,
   PresentationFileExtension,
-  PresentationFileWithFileExtension,
   UploadedPresentation,
 } from './types';
 import { PresentationDbProviderInterface } from './PresentationDbProviderInterface';
 import { PRESENTATION_OWNER_COOKIE_VAL } from '../controllers/utils';
-import { isArray, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
+import { ReadStream } from 'fs';
+import ReadableStreamClone from 'readable-stream-clone';
 
 @injectable()
 export class PresentationService implements PresentationServiceInterface {
@@ -36,68 +35,58 @@ export class PresentationService implements PresentationServiceInterface {
   ) {}
 
   async uploadPresentation(
-    files: UploadedPresentation,
+    uploadedPresentation: UploadedPresentation,
   ): Promise<PresentationEntityResponse> {
-    if (!files || !files.presentation || isArray(files.presentation)) {
-      throw new BadRequestException();
+    // todo remember to handle it in middleware
+    // if (!files || !files.presentation || isArray(files.presentation)) {
+    //   throw new BadRequestException();
+    // }
+
+    let { presentationStream } = uploadedPresentation;
+    const { fileType } = uploadedPresentation;
+    this.checkIfFileIsSupported(fileType);
+
+    if (fileType === PresentationFileExtension.PPTX) {
+      presentationStream = this.pdfService.convertToPdf(presentationStream);
     }
 
-    const {
-      presentation: { name: presentationFileName },
-    } = files;
-    let {
-      presentation: { data: presentationDataBuffer },
-    } = files;
-
-    const fileExtension = path.extname(
-      presentationFileName,
-    ) as PresentationFileExtension;
-
-    this.isFileSupported(fileExtension);
-
-    if (fileExtension === PresentationFileExtension.PPTX) {
-      presentationDataBuffer = await this.pdfService.convertToPdf(
-        presentationDataBuffer,
-      );
-    }
+    const presentationStreamCopy = new ReadableStreamClone(presentationStream);
+    const presentationStreamCopyForSlideCount = new ReadableStreamClone(
+      presentationStream,
+    );
 
     let numberOfSlides: number;
     try {
       numberOfSlides = await this.pdfService.getNumberOfSlides(
-        presentationDataBuffer,
+        presentationStreamCopyForSlideCount,
       );
     } catch (error) {
       throw new BadRequestException();
     }
 
     const fileName = await this.fileStorageService.saveFile(
-      presentationDataBuffer,
-      presentationFileName,
+      presentationStreamCopy,
     );
 
-    let presentationEntity: PresentationDbRow;
-
     try {
-      presentationEntity = await this.presentationProvider.insertPresentationEntity(
+      const presentationEntity = await this.presentationProvider.insertPresentationEntity(
         {
           fileName,
           numberOfSlides,
           currentSlide: 1,
         },
       );
+
+      return {
+        presentation: presentationEntity,
+      };
     } catch (error) {
       await this.fileStorageService.removeFile(fileName);
       throw error;
     }
-
-    return {
-      presentation: presentationEntity,
-    };
   }
 
-  async getPresentation(
-    presentationId: string,
-  ): Promise<PresentationFileWithFileExtension> {
+  async getPresentation(presentationId: string): Promise<ReadStream> {
     const presentation = await this.presentationProvider.getPresentationEntity(
       presentationId,
     );
@@ -108,11 +97,7 @@ export class PresentationService implements PresentationServiceInterface {
 
     const { file_name: fileName } = presentation;
 
-    const presentationFile = await this.fileStorageService.getFile(fileName);
-
-    return {
-      presentationFile,
-    };
+    return await this.fileStorageService.getFile(fileName);
   }
 
   async getPresentationWithMetadata(
@@ -199,7 +184,9 @@ export class PresentationService implements PresentationServiceInterface {
     await this.fileStorageService.removeFile(removedEntity.file_name);
   }
 
-  private isFileSupported(fileExtension: PresentationFileExtension): boolean {
+  private checkIfFileIsSupported(
+    fileExtension: PresentationFileExtension,
+  ): boolean {
     if (Object.values(PresentationFileExtension).includes(fileExtension)) {
       return true;
     }

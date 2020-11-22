@@ -12,11 +12,12 @@ import { presentationModule } from '../Presentation/serviceIdentifiers';
 import { PresentationServiceInterface } from '../Presentation/PresentationServiceInterface';
 import {
   handleError,
+  PRESENTATION_OWNER_COOKIE_MAX_AGE,
   PRESENTATION_OWNER_COOKIE_VAL,
   sendResponse,
 } from './utils';
 import { StatusCode } from './StatusCode';
-import { UploadedPresentation } from '../Presentation/types';
+import { uploadPresentationMiddleware } from '../../config/expressMiddleware';
 
 @controller('/presentation')
 export class PresentationController implements interfaces.Controller {
@@ -25,13 +26,19 @@ export class PresentationController implements interfaces.Controller {
     private presentationService: PresentationServiceInterface,
   ) {}
 
-  @httpPost('')
+  @httpPost('', uploadPresentationMiddleware())
   async uploadPresentation(req: Request, res: Response): Promise<void> {
-    const { files } = req;
+    const {
+      stream: presentationStream,
+      //@ts-ignore
+      clientReportedFileExtension: fileType,
+    } = req.file;
+
     try {
-      const result = await this.presentationService.uploadPresentation(
-        files as UploadedPresentation,
-      );
+      const result = await this.presentationService.uploadPresentation({
+        presentationStream,
+        fileType,
+      });
       this.setPresentationOwnerCookie(res, result.presentation.id);
       sendResponse(res, StatusCode.OK, result);
     } catch (error) {
@@ -42,16 +49,14 @@ export class PresentationController implements interfaces.Controller {
   @httpGet('/:presentationId')
   async getPresentation(req: Request, res: Response): Promise<void> {
     try {
-      const {
-        presentationFile,
-      } = await this.presentationService.getPresentation(
+      const presentationReadStream = await this.presentationService.getPresentation(
         req.params.presentationId,
       );
       res.writeHead(StatusCode.OK, {
-        'Cache-Control': 'public, max-age=86400000',
+        'Cache-Control': 'private, max-age=86400000',
         'Content-Type': 'application/pdf',
       });
-      res.end(presentationFile);
+      presentationReadStream.pipe(res);
     } catch (error) {
       handleError(res, error);
     }
@@ -107,10 +112,13 @@ export class PresentationController implements interfaces.Controller {
     }
   }
 
+  // todo handle presentation owner authorization with JWT, add middleware to routes that use it
   private setPresentationOwnerCookie(
     res: Response,
     presentationId: string,
   ): void {
-    res.cookie(presentationId, PRESENTATION_OWNER_COOKIE_VAL);
+    res.cookie(presentationId, PRESENTATION_OWNER_COOKIE_VAL, {
+      maxAge: PRESENTATION_OWNER_COOKIE_MAX_AGE,
+    });
   }
 }

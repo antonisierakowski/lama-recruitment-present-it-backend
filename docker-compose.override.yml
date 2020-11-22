@@ -1,0 +1,7 @@
+# DEVELOPMENT
+version: "3.9"
+services:
+  api:
+    command: sh -c "/wait && yarn dev"
+    volumes:
+      - .:/usr/src/app
