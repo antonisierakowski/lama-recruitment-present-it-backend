@@ -10,8 +10,8 @@ export class PdfService implements PdfServiceInterface {
       '-c',
       "sed -n 's|.*/Count -\\{0,1\\}\\([0-9]\\{1,\\}\\).*|\\1|p' | sort -rn | head -n 1",
     ];
-    const cp = spawn('sh', args);
-    const { stdin, stdout } = cp;
+    const getNumberOfSlidesProcess = spawn('sh', args);
+    const { stdin, stdout } = getNumberOfSlidesProcess;
     pdfReadable.pipe(stdin);
     return new Promise(resolve => {
       stdout.on('data', (data: Buffer) => {

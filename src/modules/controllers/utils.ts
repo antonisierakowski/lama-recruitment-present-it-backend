@@ -38,12 +38,12 @@ export const sendResponse = <TResponse = any>(
   statusCode: StatusCode,
   responseBody?: any,
 ): void => {
-  const parsedResponse = createResponse<TResponse>(statusCode, responseBody);
-  res.status(parsedResponse.status).send(parsedResponse);
+  const response = createResponse<TResponse>(statusCode, responseBody);
+  res.status(response.status).send(response);
 };
 
 export const handleError = (res: Response, error: Error): void => {
-  console.log(error);
+  console.error(error);
   if (error instanceof HttpException) {
     sendResponse(res, error.statusCode, error.message);
   } else {

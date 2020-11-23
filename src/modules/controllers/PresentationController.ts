@@ -17,7 +17,10 @@ import {
   sendResponse,
 } from './utils';
 import { StatusCode } from './StatusCode';
-import { uploadPresentationMiddleware } from '../../config/expressMiddleware';
+import {
+  PresentationRequest,
+  uploadPresentationMiddleware,
+} from '../../config/expressMiddleware';
 
 @controller('/presentation')
 export class PresentationController implements interfaces.Controller {
@@ -26,19 +29,15 @@ export class PresentationController implements interfaces.Controller {
     private presentationService: PresentationServiceInterface,
   ) {}
 
-  @httpPost('', uploadPresentationMiddleware())
-  async uploadPresentation(req: Request, res: Response): Promise<void> {
-    const {
-      stream: presentationStream,
-      //@ts-ignore
-      clientReportedFileExtension: fileType,
-    } = req.file;
-
+  @httpPost('', uploadPresentationMiddleware)
+  async uploadPresentation(
+    req: PresentationRequest,
+    res: Response,
+  ): Promise<void> {
     try {
-      const result = await this.presentationService.uploadPresentation({
-        presentationStream,
-        fileType,
-      });
+      const result = await this.presentationService.uploadPresentation(
+        req.presentation,
+      );
       this.setPresentationOwnerCookie(res, result.presentation.id);
       sendResponse(res, StatusCode.OK, result);
     } catch (error) {

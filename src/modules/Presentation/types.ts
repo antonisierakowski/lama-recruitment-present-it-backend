@@ -12,16 +12,18 @@ export enum PresentationFileExtension {
   PDF = '.pdf',
 }
 
+export const PresentationMIMEType = new Map<string, PresentationFileExtension>([
+  ['application/pdf', PresentationFileExtension.PDF],
+  [
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    PresentationFileExtension.PPTX,
+  ],
+]);
+
 export type UploadedPresentation = {
   fileType: PresentationFileExtension;
   presentationStream: Readable;
 };
-
-export interface ParsedPresentationXmlFile {
-  Properties: {
-    Slides: string[];
-  };
-}
 
 export interface Presentation {
   id?: string;

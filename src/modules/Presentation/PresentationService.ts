@@ -3,6 +3,7 @@ import {
   BadRequestException,
   ForbiddenException,
   ResourceNotFoundException,
+  throwIf,
   UnprocessableEntityException,
   UnsupportedMediaTypeException,
 } from '../../exceptions';
@@ -37,14 +38,8 @@ export class PresentationService implements PresentationServiceInterface {
   async uploadPresentation(
     uploadedPresentation: UploadedPresentation,
   ): Promise<PresentationEntityResponse> {
-    // todo remember to handle it in middleware
-    // if (!files || !files.presentation || isArray(files.presentation)) {
-    //   throw new BadRequestException();
-    // }
-
     let { presentationStream } = uploadedPresentation;
     const { fileType } = uploadedPresentation;
-    this.checkIfFileIsSupported(fileType);
 
     if (fileType === PresentationFileExtension.PPTX) {
       presentationStream = this.pdfService.convertToPdf(presentationStream);
@@ -91,9 +86,7 @@ export class PresentationService implements PresentationServiceInterface {
       presentationId,
     );
 
-    if (!presentation) {
-      throw new ResourceNotFoundException();
-    }
+    throwIf(!presentation, new ResourceNotFoundException());
 
     const { file_name: fileName } = presentation;
 
@@ -108,9 +101,7 @@ export class PresentationService implements PresentationServiceInterface {
       presentationId,
     );
 
-    if (isEmpty(presentationEntity)) {
-      throw new ResourceNotFoundException();
-    }
+    throwIf(isEmpty(presentationEntity), new ResourceNotFoundException());
 
     const isRequesterPresentationOwner = this.isRequesterPresentationOwner(
       presentationId,
@@ -144,13 +135,9 @@ export class PresentationService implements PresentationServiceInterface {
       presentationId,
       presentationOwnerCookie,
     );
-    if (!isRequesterPresentationOwner) {
-      throw new ForbiddenException();
-    }
 
-    if (!newSlideNumber) {
-      throw new UnprocessableEntityException();
-    }
+    throwIf(!isRequesterPresentationOwner, new ForbiddenException());
+    throwIf(!newSlideNumber, new UnprocessableEntityException());
 
     const result = await this.presentationProvider.updatePresentationEntity({
       currentSlide: newSlideNumber,
@@ -170,26 +157,13 @@ export class PresentationService implements PresentationServiceInterface {
       presentationId,
       presentationOwnerCookie,
     );
-    if (!isRequesterPresentationOwner) {
-      throw new ForbiddenException();
-    }
+    throwIf(!isRequesterPresentationOwner, new ForbiddenException());
 
     const removedEntity = await this.presentationProvider.deletePresentationEntity(
       presentationId,
     );
-    if (isEmpty(removedEntity)) {
-      throw new ResourceNotFoundException();
-    }
+    throwIf(isEmpty(removedEntity), new ResourceNotFoundException());
 
     await this.fileStorageService.removeFile(removedEntity.file_name);
-  }
-
-  private checkIfFileIsSupported(
-    fileExtension: PresentationFileExtension,
-  ): boolean {
-    if (Object.values(PresentationFileExtension).includes(fileExtension)) {
-      return true;
-    }
-    throw new UnsupportedMediaTypeException();
   }
 }

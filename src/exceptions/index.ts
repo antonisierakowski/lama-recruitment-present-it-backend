@@ -21,9 +21,23 @@ export const UnprocessableEntityException = createHttpException(
 export const ResourceNotFoundException = createHttpException(
   StatusCode.RESOURCE_NOT_FOUND,
 );
+export const PayloadTooLargeException = createHttpException(
+  StatusCode.PAYLOAD_TOO_LARGE,
+);
 export const ForbiddenException = createHttpException(StatusCode.FORBIDDEN);
 export const UnsupportedMediaTypeException = createHttpException(
   StatusCode.UNSUPPORTED_MEDIA_TYPE,
 );
 export const BadRequestException = createHttpException(StatusCode.BAD_REQUEST);
 export const InternalError = createHttpException(StatusCode.INTERNAL_ERROR);
+
+export const throwIf = (
+  condition: boolean,
+  exception: Error,
+  beforeThrow?: () => void,
+): void => {
+  beforeThrow?.();
+  if (condition) {
+    throw exception;
+  }
+};

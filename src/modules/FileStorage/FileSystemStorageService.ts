@@ -2,13 +2,13 @@ import path from 'path';
 import { FileStorageServiceInterface } from './FileStorageServiceInterface';
 import { injectable } from 'inversify';
 import shortid from 'shortid';
-import { ResourceNotFoundException } from '../../exceptions';
+import { ResourceNotFoundException, throwIf } from '../../exceptions';
 import * as utils from './utils';
 import { Readable } from 'stream';
 import { createWriteStream, createReadStream, ReadStream } from 'fs';
 
 @injectable()
-export class FileStorageService implements FileStorageServiceInterface {
+export class FileSystemStorageService implements FileStorageServiceInterface {
   private readonly path: string = './__static';
 
   async saveFile(file: Readable): Promise<string> {
@@ -38,9 +38,7 @@ export class FileStorageService implements FileStorageServiceInterface {
   async removeFile(fileName: string): Promise<void> {
     const fullPath = path.join(this.path, fileName);
     const doesFileExist = await utils.doesFileExist(this.path);
-    if (!doesFileExist) {
-      throw new ResourceNotFoundException();
-    }
+    throwIf(!doesFileExist, new ResourceNotFoundException());
     await utils.removeFile(fullPath);
   }
 }
