@@ -19,6 +19,7 @@ Then `docker-compose up` will build the images and run the Docker containers. On
 * `yarn`
 * `postgresql` (including `psql` CLI)
 * `libreoffice` command line tools
+* `unoconv` command line tools
 
 Same as above, in project root run `cp .env.dist .env`. You will need to edit the environment variables so the server can access your local PostgreSQL installation.  
 Once you make sure PostgreSQL server is up, run `yarn init-db` to set up the database for the app.   

@@ -3,13 +3,8 @@ import { inject, injectable } from 'inversify';
 import { authorizationModule } from '../Authorization/serviceIdentifiers';
 import { AuthorizationServiceInterface } from '../Authorization/AuthorizationServiceInterface';
 import { handleError } from '../controllers/utils';
-import { throwIf } from '../../exceptions';
+import { ForbiddenException, throwIf } from '../../exceptions';
 import { NextFunction, Request, Response } from 'express';
-
-class ForbiddenException implements Error {
-  message: string;
-  name: string;
-}
 
 @injectable()
 export class ValidatePresentationOwnerMiddleware extends BaseMiddleware {
