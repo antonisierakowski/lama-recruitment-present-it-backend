@@ -1,11 +1,9 @@
 import { PresentationServiceInterface } from './PresentationServiceInterface';
 import {
   BadRequestException,
-  ForbiddenException,
   ResourceNotFoundException,
   throwIf,
   UnprocessableEntityException,
-  UnsupportedMediaTypeException,
 } from '../../exceptions';
 import { inject, injectable } from 'inversify';
 import { presentationModule } from './serviceIdentifiers';
@@ -19,10 +17,11 @@ import {
   UploadedPresentation,
 } from './types';
 import { PresentationDbProviderInterface } from './PresentationDbProviderInterface';
-import { PRESENTATION_OWNER_COOKIE_VAL } from '../controllers/utils';
 import { isEmpty } from 'lodash';
 import { ReadStream } from 'fs';
 import ReadableStreamClone from 'readable-stream-clone';
+import { authorizationModule } from '../Authorization/serviceIdentifiers';
+import { AuthorizationServiceInterface } from '../Authorization/AuthorizationServiceInterface';
 
 @injectable()
 export class PresentationService implements PresentationServiceInterface {
@@ -33,6 +32,8 @@ export class PresentationService implements PresentationServiceInterface {
     private fileStorageService: FileStorageServiceInterface,
     @inject(presentationModule.PresentationDbProvider)
     private presentationProvider: PresentationDbProviderInterface,
+    @inject(authorizationModule.AuthorizationService)
+    private jwtAuthorizationService: AuthorizationServiceInterface,
   ) {}
 
   async uploadPresentation(
@@ -95,7 +96,7 @@ export class PresentationService implements PresentationServiceInterface {
 
   async getPresentationWithMetadata(
     presentationId: string,
-    presentationOwnerCookie: string,
+    ownerToken: string,
   ): Promise<GetPresentationWithMetadataResponse> {
     const presentationEntity = await this.presentationProvider.getPresentationEntity(
       presentationId,
@@ -103,9 +104,9 @@ export class PresentationService implements PresentationServiceInterface {
 
     throwIf(isEmpty(presentationEntity), new ResourceNotFoundException());
 
-    const isRequesterPresentationOwner = this.isRequesterPresentationOwner(
+    const isRequesterPresentationOwner = this.jwtAuthorizationService.verify(
+      ownerToken,
       presentationId,
-      presentationOwnerCookie,
     );
 
     return {
@@ -116,27 +117,10 @@ export class PresentationService implements PresentationServiceInterface {
     };
   }
 
-  isRequesterPresentationOwner(
-    presentationId: string,
-    presentationOwnerCookie: string,
-  ): boolean {
-    if (presentationOwnerCookie === PRESENTATION_OWNER_COOKIE_VAL) {
-      return true;
-    }
-    return false;
-  }
-
   async updatePresentationCurrentSlide(
     presentationId: string,
     newSlideNumber: number,
-    presentationOwnerCookie: string,
   ): Promise<PresentationEntityResponse> {
-    const isRequesterPresentationOwner = this.isRequesterPresentationOwner(
-      presentationId,
-      presentationOwnerCookie,
-    );
-
-    throwIf(!isRequesterPresentationOwner, new ForbiddenException());
     throwIf(!newSlideNumber, new UnprocessableEntityException());
 
     const result = await this.presentationProvider.updatePresentationEntity({
@@ -149,16 +133,7 @@ export class PresentationService implements PresentationServiceInterface {
     };
   }
 
-  async removePresentation(
-    presentationId: string,
-    presentationOwnerCookie: string,
-  ): Promise<void> {
-    const isRequesterPresentationOwner = this.isRequesterPresentationOwner(
-      presentationId,
-      presentationOwnerCookie,
-    );
-    throwIf(!isRequesterPresentationOwner, new ForbiddenException());
-
+  async removePresentation(presentationId: string): Promise<void> {
     const removedEntity = await this.presentationProvider.deletePresentationEntity(
       presentationId,
     );

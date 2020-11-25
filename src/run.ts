@@ -1,7 +1,7 @@
 import './config/dotenv';
 import 'reflect-metadata';
 import { InversifyExpressServer } from 'inversify-express-utils';
-import { applyMiddleware } from './config/expressMiddleware';
+import { applyMiddleware } from './config/applyMiddleware';
 import container from './config/container';
 import { websocketServerModule } from './modules/WebsocketServer/serviceIdentifiers';
 import { WebsocketServerInterface } from './modules/WebsocketServer/WebsocketServerInterface';

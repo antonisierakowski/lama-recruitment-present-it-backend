@@ -14,22 +14,13 @@ export interface PresentationServiceInterface {
 
   getPresentationWithMetadata(
     presentationId: string,
-    presentationOwnerCookie: string,
+    ownerToken: string,
   ): Promise<GetPresentationWithMetadataResponse>;
-
-  isRequesterPresentationOwner(
-    presentationId: string,
-    presentationOwnerCookie: string,
-  ): boolean;
 
   updatePresentationCurrentSlide(
     presentationId: string,
     newSlideNumber: number,
-    presentationOwnerCookie: string,
   ): Promise<PresentationEntityResponse>;
 
-  removePresentation(
-    presentationId: string,
-    presentationOwnerCookie: string,
-  ): Promise<void>;
+  removePresentation(presentationId: string): Promise<void>;
 }

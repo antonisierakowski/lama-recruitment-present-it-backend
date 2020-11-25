@@ -13,32 +13,39 @@ import { PresentationServiceInterface } from '../Presentation/PresentationServic
 import {
   handleError,
   PRESENTATION_OWNER_COOKIE_MAX_AGE,
-  PRESENTATION_OWNER_COOKIE_VAL,
   sendResponse,
 } from './utils';
 import { StatusCode } from './StatusCode';
-import {
-  PresentationRequest,
-  uploadPresentationMiddleware,
-} from '../../config/expressMiddleware';
+import { authorizationModule } from '../Authorization/serviceIdentifiers';
+import { AuthorizationServiceInterface } from '../Authorization/AuthorizationServiceInterface';
+import { PresentationUploadRequest } from '../controllerMiddleware/UploadPresentationMiddleware';
+import { controllerMiddlewareModule } from '../controllerMiddleware/serviceIdentifiers';
 
 @controller('/presentation')
 export class PresentationController implements interfaces.Controller {
   constructor(
     @inject(presentationModule.PresentationService)
     private presentationService: PresentationServiceInterface,
+    @inject(authorizationModule.AuthorizationService)
+    private jwtAuthorizationService: AuthorizationServiceInterface,
   ) {}
 
-  @httpPost('', uploadPresentationMiddleware)
+  @httpPost('', controllerMiddlewareModule.UploadPresentationMiddleware)
   async uploadPresentation(
-    req: PresentationRequest,
+    req: PresentationUploadRequest,
     res: Response,
   ): Promise<void> {
     try {
       const result = await this.presentationService.uploadPresentation(
         req.presentation,
       );
-      this.setPresentationOwnerCookie(res, result.presentation.id);
+      res.cookie(
+        result.presentation.id,
+        this.jwtAuthorizationService.sign(result.presentation.id),
+        {
+          maxAge: PRESENTATION_OWNER_COOKIE_MAX_AGE,
+        },
+      );
       sendResponse(res, StatusCode.OK, result);
     } catch (error) {
       handleError(res, error);
@@ -64,12 +71,12 @@ export class PresentationController implements interfaces.Controller {
   @httpGet('/:presentationId/metadata')
   async getPresentationMetadata(req: Request, res: Response): Promise<void> {
     const { presentationId } = req.params;
-    const isPresentationOwnerCookie = req.cookies[presentationId];
+    const ownerToken = req.cookies[presentationId];
 
     try {
       const result = await this.presentationService.getPresentationWithMetadata(
         presentationId,
-        isPresentationOwnerCookie,
+        ownerToken,
       );
       sendResponse(res, StatusCode.OK, result);
     } catch (error) {
@@ -77,17 +84,19 @@ export class PresentationController implements interfaces.Controller {
     }
   }
 
-  @httpPut('/:presentationId')
+  // @ts-ignore
+  @httpPut(
+    '/:presentationId',
+    controllerMiddlewareModule.ValidatePresentationOwnerMiddleware,
+  )
   async updatePresentation(req: Request, res: Response): Promise<void> {
     const { presentationId } = req.params;
     const newSlideNumber = req.body.currentSlide;
-    const isPresentationOwnerCookie = req.cookies[presentationId];
 
     try {
       const result = await this.presentationService.updatePresentationCurrentSlide(
         presentationId,
         newSlideNumber,
-        isPresentationOwnerCookie,
       );
       sendResponse(res, StatusCode.OK, result);
     } catch (error) {
@@ -95,29 +104,18 @@ export class PresentationController implements interfaces.Controller {
     }
   }
 
-  @httpDelete('/:presentationId')
+  @httpDelete(
+    '/:presentationId',
+    controllerMiddlewareModule.ValidatePresentationOwnerMiddleware,
+  )
   async deletePresentation(req: Request, res: Response): Promise<void> {
     const { presentationId } = req.params;
-    const isPresentationOwnerCookie = req.cookies[presentationId];
 
     try {
-      await this.presentationService.removePresentation(
-        presentationId,
-        isPresentationOwnerCookie,
-      );
+      await this.presentationService.removePresentation(presentationId);
       sendResponse(res, StatusCode.OK);
     } catch (error) {
       handleError(res, error);
     }
-  }
-
-  // todo handle presentation owner authorization with JWT, add middleware to routes that use it
-  private setPresentationOwnerCookie(
-    res: Response,
-    presentationId: string,
-  ): void {
-    res.cookie(presentationId, PRESENTATION_OWNER_COOKIE_VAL, {
-      maxAge: PRESENTATION_OWNER_COOKIE_MAX_AGE,
-    });
   }
 }
