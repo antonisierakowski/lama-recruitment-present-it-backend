@@ -1,9 +1,6 @@
 import { AuthorizationServiceInterface } from './AuthorizationServiceInterface';
 import jwt from 'jsonwebtoken';
 import { injectable } from 'inversify';
-import { NextFunction, Request, Response } from 'express';
-import { ForbiddenException, throwIf } from '../../exceptions';
-import { handleError } from '../controllers/utils';
 
 @injectable()
 export class JWTAuthorizationService implements AuthorizationServiceInterface {
