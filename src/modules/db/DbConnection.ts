@@ -5,9 +5,9 @@ import { dbModule } from './serviceIdentifiers';
 
 @injectable()
 export class DbConnection implements ConnectionInterface {
-  constructor(@inject(dbModule.ConnectionInstance) private connection: Knex) {}
+  constructor(@inject(dbModule.ConnectionInstance) private _connection: Knex) {}
 
   getConnection(): Knex {
-    return this.connection;
+    return this._connection;
   }
 }

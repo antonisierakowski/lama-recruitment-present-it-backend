@@ -15,7 +15,7 @@ class ForbiddenException implements Error {
 export class ValidatePresentationOwnerMiddleware extends BaseMiddleware {
   constructor(
     @inject(authorizationModule.AuthorizationService)
-    private jwtAuthorizationService: AuthorizationServiceInterface,
+    private _jwtAuthorizationService: AuthorizationServiceInterface,
   ) {
     super();
   }
@@ -27,7 +27,7 @@ export class ValidatePresentationOwnerMiddleware extends BaseMiddleware {
 
       throwIf(token, new ForbiddenException());
 
-      const isValid = this.jwtAuthorizationService.verify(token, id);
+      const isValid = this._jwtAuthorizationService.verify(token, id);
 
       throwIf(!isValid, new ForbiddenException());
       next();

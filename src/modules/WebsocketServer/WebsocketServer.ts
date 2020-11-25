@@ -9,27 +9,27 @@ import { Socket } from 'net';
 
 @injectable()
 export class WebsocketServer implements WebsocketServerInterface {
-  private wsServer: WebSocket.Server;
-  private server: http.Server;
+  private _wsServer: WebSocket.Server;
+  private _server: http.Server;
 
   constructor(
     @inject(websocketServerModule.WebsocketChannelCluster)
-    private cluster: WebsocketChannelClusterInterface,
+    private _cluster: WebsocketChannelClusterInterface,
   ) {
-    this.wsServer = new WebSocket.Server({ noServer: true });
-    this.server = http.createServer();
+    this._wsServer = new WebSocket.Server({ noServer: true });
+    this._server = http.createServer();
   }
 
   async open(port: number): Promise<void> {
-    this.server.on('upgrade', this.handleWsHandshake.bind(this));
-    this.server.listen(port, () => {
+    this._server.on('upgrade', this._handleWsHandshake.bind(this));
+    this._server.listen(port, () => {
       console.log(`WebSocket server opened on port ${port}...`);
     });
   }
 
   async close(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.server.close((err: Error) => {
+      this._server.close((err: Error) => {
         if (err) {
           reject(err);
         }
@@ -38,15 +38,15 @@ export class WebsocketServer implements WebsocketServerInterface {
     });
   }
 
-  private handleWsHandshake(
+  private _handleWsHandshake(
     req: http.IncomingMessage,
     socket: Socket,
     head: Buffer,
   ): void {
     const pathname = url.parse(req.url).pathname;
     const channelId = pathname.substr(1);
-    this.wsServer.handleUpgrade(req, socket, head, (ws: WebSocket) => {
-      this.cluster.addConnection(channelId, ws);
+    this._wsServer.handleUpgrade(req, socket, head, (ws: WebSocket) => {
+      this._cluster.addConnection(channelId, ws);
     });
   }
 }

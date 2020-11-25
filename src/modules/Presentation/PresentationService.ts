@@ -27,13 +27,13 @@ import { AuthorizationServiceInterface } from '../Authorization/AuthorizationSer
 export class PresentationService implements PresentationServiceInterface {
   constructor(
     @inject(presentationModule.PdfService)
-    private pdfService: PdfServiceInterface,
+    private _pdfService: PdfServiceInterface,
     @inject(fileStorageModule.FileStorageService)
-    private fileStorageService: FileStorageServiceInterface,
+    private _fileStorageService: FileStorageServiceInterface,
     @inject(presentationModule.PresentationDbProvider)
-    private presentationProvider: PresentationDbProviderInterface,
+    private _presentationProvider: PresentationDbProviderInterface,
     @inject(authorizationModule.AuthorizationService)
-    private jwtAuthorizationService: AuthorizationServiceInterface,
+    private _jwtAuthorizationService: AuthorizationServiceInterface,
   ) {}
 
   async uploadPresentation(
@@ -43,7 +43,7 @@ export class PresentationService implements PresentationServiceInterface {
     const { fileType } = uploadedPresentation;
 
     if (fileType === PresentationFileExtension.PPTX) {
-      presentationStream = this.pdfService.convertToPdf(presentationStream);
+      presentationStream = this._pdfService.convertToPdf(presentationStream);
     }
 
     const presentationStreamCopy = new ReadableStreamClone(presentationStream);
@@ -53,19 +53,19 @@ export class PresentationService implements PresentationServiceInterface {
 
     let numberOfSlides: number;
     try {
-      numberOfSlides = await this.pdfService.getNumberOfSlides(
+      numberOfSlides = await this._pdfService.getNumberOfSlides(
         presentationStreamCopyForSlideCount,
       );
     } catch (error) {
       throw new BadRequestException();
     }
 
-    const fileName = await this.fileStorageService.saveFile(
+    const fileName = await this._fileStorageService.saveFile(
       presentationStreamCopy,
     );
 
     try {
-      const presentationEntity = await this.presentationProvider.insertPresentationEntity(
+      const presentationEntity = await this._presentationProvider.insertPresentationEntity(
         {
           fileName,
           numberOfSlides,
@@ -77,13 +77,13 @@ export class PresentationService implements PresentationServiceInterface {
         presentation: presentationEntity,
       };
     } catch (error) {
-      await this.fileStorageService.removeFile(fileName);
+      await this._fileStorageService.removeFile(fileName);
       throw error;
     }
   }
 
   async getPresentation(presentationId: string): Promise<ReadStream> {
-    const presentation = await this.presentationProvider.getPresentationEntity(
+    const presentation = await this._presentationProvider.getPresentationEntity(
       presentationId,
     );
 
@@ -91,20 +91,20 @@ export class PresentationService implements PresentationServiceInterface {
 
     const { file_name: fileName } = presentation;
 
-    return await this.fileStorageService.getFile(fileName);
+    return await this._fileStorageService.getFile(fileName);
   }
 
   async getPresentationWithMetadata(
     presentationId: string,
     ownerToken: string,
   ): Promise<GetPresentationWithMetadataResponse> {
-    const presentationEntity = await this.presentationProvider.getPresentationEntity(
+    const presentationEntity = await this._presentationProvider.getPresentationEntity(
       presentationId,
     );
 
     throwIf(isEmpty(presentationEntity), new ResourceNotFoundException());
 
-    const isRequesterPresentationOwner = this.jwtAuthorizationService.verify(
+    const isRequesterPresentationOwner = this._jwtAuthorizationService.verify(
       ownerToken,
       presentationId,
     );
@@ -123,7 +123,7 @@ export class PresentationService implements PresentationServiceInterface {
   ): Promise<PresentationEntityResponse> {
     throwIf(!newSlideNumber, new UnprocessableEntityException());
 
-    const result = await this.presentationProvider.updatePresentationEntity({
+    const result = await this._presentationProvider.updatePresentationEntity({
       currentSlide: newSlideNumber,
       id: presentationId,
     });
@@ -134,11 +134,11 @@ export class PresentationService implements PresentationServiceInterface {
   }
 
   async removePresentation(presentationId: string): Promise<void> {
-    const removedEntity = await this.presentationProvider.deletePresentationEntity(
+    const removedEntity = await this._presentationProvider.deletePresentationEntity(
       presentationId,
     );
     throwIf(isEmpty(removedEntity), new ResourceNotFoundException());
 
-    await this.fileStorageService.removeFile(removedEntity.file_name);
+    await this._fileStorageService.removeFile(removedEntity.file_name);
   }
 }

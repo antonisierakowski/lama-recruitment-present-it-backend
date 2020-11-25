@@ -17,27 +17,27 @@ interface NotificationResponseMessage {
 
 @injectable()
 export class TriggerListener implements TriggerListenerInterface {
-  private rawConnection: pg.Connection;
+  private _rawConnection: pg.Connection;
 
   constructor(
     @inject(websocketServerModule.WebsocketChannelCluster)
-    private wsChannelCluster: WebsocketChannelClusterInterface,
-    @inject(dbModule.ConnectionInstance) private connection: Knex,
+    private _wsChannelCluster: WebsocketChannelClusterInterface,
+    @inject(dbModule.ConnectionInstance) private _connection: Knex,
   ) {}
 
   async connectAndStartListening(): Promise<void> {
-    this.rawConnection = await this.connection.client.acquireRawConnection();
-    this.rawConnection.query('LISTEN new_event');
-    this.rawConnection.on('notification', this.notify.bind(this));
+    this._rawConnection = await this._connection.client.acquireRawConnection();
+    this._rawConnection.query('LISTEN new_event');
+    this._rawConnection.on('notification', this._notify.bind(this));
   }
 
   closeConnection(): void {
-    this.rawConnection.end();
+    this._rawConnection.end();
   }
 
-  private notify(data: NotificationResponseMessage) {
+  private _notify(data: NotificationResponseMessage) {
     const presentationEntity = JSON.parse(data.payload) as PresentationDbRow;
-    this.wsChannelCluster.notifyChannel<PresentationDbRow>(
+    this._wsChannelCluster.notifyChannel<PresentationDbRow>(
       presentationEntity.id,
       presentationEntity,
     );

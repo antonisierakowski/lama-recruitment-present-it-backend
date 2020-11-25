@@ -25,9 +25,9 @@ import { controllerMiddlewareModule } from '../controllerMiddleware/serviceIdent
 export class PresentationController implements interfaces.Controller {
   constructor(
     @inject(presentationModule.PresentationService)
-    private presentationService: PresentationServiceInterface,
+    private _presentationService: PresentationServiceInterface,
     @inject(authorizationModule.AuthorizationService)
-    private jwtAuthorizationService: AuthorizationServiceInterface,
+    private _jwtAuthorizationService: AuthorizationServiceInterface,
   ) {}
 
   @httpPost('', controllerMiddlewareModule.UploadPresentationMiddleware)
@@ -36,12 +36,12 @@ export class PresentationController implements interfaces.Controller {
     res: Response,
   ): Promise<void> {
     try {
-      const result = await this.presentationService.uploadPresentation(
+      const result = await this._presentationService.uploadPresentation(
         req.presentation,
       );
       res.cookie(
         result.presentation.id,
-        this.jwtAuthorizationService.sign(result.presentation.id),
+        this._jwtAuthorizationService.sign(result.presentation.id),
         {
           maxAge: PRESENTATION_OWNER_COOKIE_MAX_AGE,
         },
@@ -55,7 +55,7 @@ export class PresentationController implements interfaces.Controller {
   @httpGet('/:presentationId')
   async getPresentation(req: Request, res: Response): Promise<void> {
     try {
-      const presentationReadStream = await this.presentationService.getPresentation(
+      const presentationReadStream = await this._presentationService.getPresentation(
         req.params.presentationId,
       );
       res.writeHead(StatusCode.OK, {
@@ -74,7 +74,7 @@ export class PresentationController implements interfaces.Controller {
     const ownerToken = req.cookies[presentationId];
 
     try {
-      const result = await this.presentationService.getPresentationWithMetadata(
+      const result = await this._presentationService.getPresentationWithMetadata(
         presentationId,
         ownerToken,
       );
@@ -94,7 +94,7 @@ export class PresentationController implements interfaces.Controller {
     const newSlideNumber = req.body.currentSlide;
 
     try {
-      const result = await this.presentationService.updatePresentationCurrentSlide(
+      const result = await this._presentationService.updatePresentationCurrentSlide(
         presentationId,
         newSlideNumber,
       );
@@ -112,7 +112,7 @@ export class PresentationController implements interfaces.Controller {
     const { presentationId } = req.params;
 
     try {
-      await this.presentationService.removePresentation(presentationId);
+      await this._presentationService.removePresentation(presentationId);
       sendResponse(res, StatusCode.OK);
     } catch (error) {
       handleError(res, error);

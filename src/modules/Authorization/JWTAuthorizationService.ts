@@ -7,21 +7,21 @@ import { handleError } from '../controllers/utils';
 
 @injectable()
 export class JWTAuthorizationService implements AuthorizationServiceInterface {
-  private secret: string;
+  private _secret: string;
 
   constructor() {
-    this.secret = process.env.PRESENTATION_OWNER_TOKEN_SECRET;
+    this._secret = process.env.PRESENTATION_OWNER_TOKEN_SECRET;
   }
 
   sign(phrase: string): string {
-    return jwt.sign(phrase, this.secret);
+    return jwt.sign(phrase, this._secret);
   }
 
   verify(token: string, phrase: string): boolean {
     if (!token) {
       return false;
     }
-    const result = jwt.verify(token, this.secret);
+    const result = jwt.verify(token, this._secret);
     return result === phrase;
   }
 }

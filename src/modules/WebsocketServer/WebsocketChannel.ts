@@ -4,24 +4,24 @@ import WebSocket from 'ws';
 
 @injectable()
 export class WebsocketChannel implements WebsocketChannelInterface {
-  private connections: Map<symbol, WebSocket> = new Map();
+  private _connections: Map<symbol, WebSocket> = new Map();
 
   get isEmpty(): boolean {
-    return this.connections.size === 0;
+    return this._connections.size === 0;
   }
 
   notifyChannel(data: string): void {
-    const connections = this.connections.values();
+    const connections = this._connections.values();
     for (const connection of connections) {
       connection.send(data);
     }
   }
 
   addConnection(connectionId: symbol, connection: WebSocket): void {
-    this.connections.set(connectionId, connection);
+    this._connections.set(connectionId, connection);
   }
 
   removeConnection(connectionId: symbol): void {
-    this.connections.delete(connectionId);
+    this._connections.delete(connectionId);
   }
 }

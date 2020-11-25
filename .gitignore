@@ -1,7 +1,10 @@
 .idea/
-.env
+.DS_Store
+
 node_modules/
 dist/
 __static/
-.DS_Store
+testfiles/
+
+.env
 yarn-error.log
