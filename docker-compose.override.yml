@@ -1,7 +1,22 @@
 # DEVELOPMENT
 version: "3.9"
 services:
+  db:
+    image: postgres:12
+    environment:
+      POSTGRES_USER: '${DB_USER}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD}'
+      POSTGRES_DB: '${DB}'
+    ports:
+      - '${DB_PORT}:${DB_PORT}'
+    volumes:
+      - db-data:/var/lib/postgresql/data:delegated
+      - ./db/__init__.sql:/docker-entrypoint-initdb.d/init.sql
   api:
+    depends_on:
+      - db
     command: sh -c "/wait && yarn dev"
     volumes:
       - .:/usr/src/app
+volumes:
+  db-data:
