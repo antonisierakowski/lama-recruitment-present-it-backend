@@ -8,10 +8,8 @@ RUN ./install-packages.sh
 COPY . .
 RUN yarn install && yarn build
 
-EXPOSE 8000 8080
+ENV NODE_ENV production
 
-ENV WAIT_VERSION 2.7.2
-ADD https://github.com/ufoscout/docker-compose-wait/releases/download/$WAIT_VERSION/wait /wait
-RUN chmod +x /wait
+EXPOSE 8000 8080
 
 CMD [ "node", "dist/run.js" ]

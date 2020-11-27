@@ -9,9 +9,3 @@ services:
     ports:
       - '${REST_API_PORT}:${REST_API_PORT}'
       - '${WEBSOCKET_PORT}:${WEBSOCKET_PORT}'
-    command: sh -c "/wait && node dist/run.js"
-    environment:
-      - WAIT_HOSTS=${DB_HOST}:${DB_PORT}
-      - WAIT_HOSTS_TIMEOUT=20
-      - WAIT_SLEEP_INTERVAL=2
-      - WAIT_HOST_CONNECT_TIMEOUT=5

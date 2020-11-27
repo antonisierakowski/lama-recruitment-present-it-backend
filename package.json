@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node ./dist/run.js",
     "build": "yarn lint && tsc",
-    "dev": "nodemon --watch '*.ts' --exec 'ts-node' src/run.ts",
+    "dev": "NODE_ENV=development nodemon --watch '*.ts' --exec 'ts-node' src/run.ts",
     "lint": "eslint \"./src/**/*.ts\"",
     "fix-lint": "eslint \"./src/**/*.ts\" --fix",
     "format": "prettier --write '*/**/*.ts'",
