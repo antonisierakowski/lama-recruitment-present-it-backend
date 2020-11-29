@@ -1,4 +1,4 @@
-CREATE EXTENSION "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE OR REPLACE FUNCTION public.notify_event()
   RETURNS trigger
