@@ -7,7 +7,8 @@ import { first } from 'lodash';
 import { mapPresentationToDbEntity } from './utils';
 
 @injectable()
-export class PresentationDbProvider extends AbstractDbProvider
+export class PresentationDbProvider
+  extends AbstractDbProvider
   implements PresentationDbProviderInterface {
   async insertPresentationEntity(
     presentation: Presentation,

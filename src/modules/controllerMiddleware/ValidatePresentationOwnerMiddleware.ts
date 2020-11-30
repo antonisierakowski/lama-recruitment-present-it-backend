@@ -20,7 +20,7 @@ export class ValidatePresentationOwnerMiddleware extends BaseMiddleware {
       const id = req.params.presentationId;
       const token = req.cookies[id];
 
-      throwIf(token, new ForbiddenException());
+      throwIf(!token, new ForbiddenException());
 
       const isValid = this._jwtAuthorizationService.verify(token, id);
 

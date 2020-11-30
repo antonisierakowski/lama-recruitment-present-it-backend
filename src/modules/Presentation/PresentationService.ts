@@ -22,6 +22,7 @@ import { ReadStream } from 'fs';
 import ReadableStreamClone from 'readable-stream-clone';
 import { authorizationModule } from '../Authorization/serviceIdentifiers';
 import { AuthorizationServiceInterface } from '../Authorization/AuthorizationServiceInterface';
+import shortid from 'shortid';
 
 @injectable()
 export class PresentationService implements PresentationServiceInterface {
@@ -60,18 +61,17 @@ export class PresentationService implements PresentationServiceInterface {
       throw new BadRequestException();
     }
 
-    const fileName = await this._fileStorageService.saveFile(
-      presentationStreamCopy,
-    );
+    const fileName = shortid.generate();
 
     try {
-      const presentationEntity = await this._presentationProvider.insertPresentationEntity(
-        {
+      const [presentationEntity] = await Promise.all([
+        this._presentationProvider.insertPresentationEntity({
           fileName,
           numberOfSlides,
           currentSlide: 1,
-        },
-      );
+        }),
+        this._fileStorageService.saveFile(presentationStreamCopy, fileName),
+      ]);
 
       return {
         presentation: presentationEntity,
@@ -91,7 +91,7 @@ export class PresentationService implements PresentationServiceInterface {
 
     const { file_name: fileName } = presentation;
 
-    return await this._fileStorageService.getFile(fileName);
+    return this._fileStorageService.getFile(fileName);
   }
 
   async getPresentationWithMetadata(
