@@ -2,9 +2,9 @@ import { Readable } from 'stream';
 import { ReadStream } from 'fs';
 
 export interface FileStorageServiceInterface {
-  saveFile(file: Readable): Promise<string>;
+  saveFile(file: Readable, name: string): Promise<void>;
 
-  getFile(fileName: string): Promise<ReadStream>;
+  getFile(fileName: string): ReadStream;
 
   removeFile(fileName: string): Promise<void>;
 }

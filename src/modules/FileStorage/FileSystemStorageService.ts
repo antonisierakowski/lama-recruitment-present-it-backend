@@ -1,7 +1,6 @@
 import path from 'path';
 import { FileStorageServiceInterface } from './FileStorageServiceInterface';
 import { injectable } from 'inversify';
-import shortid from 'shortid';
 import { ResourceNotFoundException, throwIf } from '../../exceptions';
 import * as utils from './utils';
 import { Readable } from 'stream';
@@ -11,22 +10,24 @@ import { createWriteStream, createReadStream, ReadStream } from 'fs';
 export class FileSystemStorageService implements FileStorageServiceInterface {
   private readonly _path: string = './__static';
 
-  async saveFile(file: Readable): Promise<string> {
-    const fileName = shortid.generate();
-    const fullPath = path.join(this._path, fileName);
+  async saveFile(file: Readable, name: string): Promise<void> {
+    const fullPath = path.join(this._path, name);
     if (!(await utils.doesFileExist(this._path))) {
       await utils.mkDir(this._path);
     }
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       const writeStream = createWriteStream(fullPath);
       file.pipe(writeStream);
+      writeStream.on('error', err => {
+        reject(err);
+      });
       writeStream.on('close', () => {
-        resolve(fileName);
+        resolve();
       });
     });
   }
 
-  async getFile(fileName: string): Promise<ReadStream> {
+  getFile(fileName: string): ReadStream {
     const fullPath = path.join(this._path, fileName);
     try {
       return createReadStream(fullPath);

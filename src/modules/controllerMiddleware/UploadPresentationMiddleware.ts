@@ -41,43 +41,48 @@ export class UploadPresentationMiddleware extends BaseMiddleware {
 
       let fileUploaded = true;
 
-      busboy.on('file', function (
-        fieldname: string,
-        file: Readable,
-        fileName: string,
-        encoding: string,
-        mimetype: string,
-      ) {
-        fileUploaded = true;
+      busboy.on(
+        'file',
+        function (
+          fieldname: string,
+          file: Readable,
+          fileName: string,
+          encoding: string,
+          mimetype: string,
+        ) {
+          fileUploaded = true;
 
-        try {
-          throwIf(fieldname !== 'presentation', new BadRequestException(), () =>
-            file.resume(),
-          );
+          try {
+            throwIf(
+              fieldname !== 'presentation',
+              new BadRequestException(),
+              () => file.resume(),
+            );
 
-          const fileExtension = (path.extname(fileName) ||
-            PresentationMIMEType.get(mimetype)) as PresentationFileExtension;
+            const fileExtension = (path.extname(fileName) ||
+              PresentationMIMEType.get(mimetype)) as PresentationFileExtension;
 
-          throwIf(
-            !Object.values(PresentationFileExtension).includes(fileExtension),
-            new UnsupportedMediaTypeException(),
-            () => file.resume(),
-          );
+            throwIf(
+              !Object.values(PresentationFileExtension).includes(fileExtension),
+              new UnsupportedMediaTypeException(),
+              () => file.resume(),
+            );
 
-          file.on('limit', () => {
-            handleError(res, new PayloadTooLargeException());
-          });
+            file.on('limit', () => {
+              handleError(res, new PayloadTooLargeException());
+            });
 
-          req.presentation = {
-            presentationStream: file,
-            fileType: fileExtension,
-          };
-          next();
-        } catch (error) {
-          file.resume();
-          return handleError(res, error);
-        }
-      });
+            req.presentation = {
+              presentationStream: file,
+              fileType: fileExtension,
+            };
+            next();
+          } catch (error) {
+            file.resume();
+            return handleError(res, error);
+          }
+        },
+      );
 
       busboy.on('finish', () => {
         throwIf(!fileUploaded, new BadRequestException());
