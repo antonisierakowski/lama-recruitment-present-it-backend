@@ -1,14 +1,14 @@
 {
-  "name": "lama-recruitment-present-it-backend",
+  "name": "presentations",
   "version": "1.0.0",
-  "description": "Recruitment task for Lama Media",
+  "description": "Backend services for presentations app",
   "main": "run.js",
   "license": "MIT",
   "repository": "https://github.com/antonisierakowski/lama-recruitment-present-it-backend",
   "scripts": {
-    "start": "node ./dist/run.js",
     "build": "yarn lint && tsc",
-    "dev": "NODE_ENV=development nodemon --watch '*.ts' --exec 'ts-node' src/run.ts",
+    "dev-api": "NODE_ENV=development nodemon --watch '*.ts' --exec 'ts-node' src/entrypoints/api.ts",
+    "dev-ws": "NODE_ENV=development nodemon --watch '*.ts' --exec 'ts-node' src/entrypoints/ws.ts",
     "lint": "eslint \"./src/**/*.ts\"",
     "fix-lint": "eslint \"./src/**/*.ts\" --fix",
     "format": "prettier --write '*/**/*.ts'",
