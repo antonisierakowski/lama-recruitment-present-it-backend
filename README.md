@@ -1,5 +1,6 @@
 ## presentations
-Backend service for `presentations` web app. [For the frontend part, visit this link.](https://github.com/antonisierakowski/presentations-frontend)  
+Backend services for `presentations` web app. [For the frontend part, visit this link.](https://github.com/antonisierakowski/presentations-frontend)
+Includes REST API, WebSocket server and cron.
 
 ## Intall & run
 
