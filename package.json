@@ -42,7 +42,7 @@
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.21.12",
     "lint-staged": "^10.5.2",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "morgan": "^1.10.0",
     "multer": "2.0.0-rc.2",
     "nodemon": "^2.0.6",
